@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='0.32';
+$VERSION='0.33';
 
 use Net::SMTP::SSL;
 use MIME::Base64;
@@ -33,9 +33,10 @@ sub _initsmtp{
   my $pass=shift;
   my $debug=shift;
   # The module sets the SMTP google but could use another!
-print "$smtp: $port\n";
   if (not $self->{sender} = Net::SMTP::SSL->new($smtp, Port => $port,
-                                                       Debug => $debug)) {die "Could not connect to SMTP server\n";
+                                                       Debug => $debug,
+                                                       SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE)) { 
+      die "Could not connect to SMTP server\n";  
   }
   # Authenticate
   $self->{sender}->auth($login,$pass) || die "Authentication (SMTP) failed\n";
