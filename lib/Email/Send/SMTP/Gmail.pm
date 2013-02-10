@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='0.33';
+$VERSION='0.34';
 
 use Net::SMTP::SSL;
 use MIME::Base64;
@@ -35,8 +35,9 @@ sub _initsmtp{
   # The module sets the SMTP google but could use another!
   if (not $self->{sender} = Net::SMTP::SSL->new($smtp, Port => $port,
                                                        Debug => $debug,
-                                                       SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE)) { 
-      die "Could not connect to SMTP server\n";  
+                                                       #SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE
+)){
+      die "Could not connect to SMTP server\n";
   }
   # Authenticate
   $self->{sender}->auth($login,$pass) || die "Authentication (SMTP) failed\n";
@@ -63,7 +64,7 @@ sub _checkfiles
        $self->bye;
        die "Unable to find the attachment file: $attach\n";
      }
-     my $opened=open(FH, "$attach");
+     my $opened=open(my $file,'<',$attach);
      if( not $opened){
         $self->bye;
         die "Unable to open the attachment file: $attach\n";
@@ -75,12 +76,12 @@ sub _checkfiles
 sub _createboundry
 {
 # Create arbitrary frontier text used to seperate different parts of the message
-  my ($bi, $bn, @bchrs);
+  my ($bi, @bchrs);
   my $boundry = "";
-  foreach $bn (48..57,65..90,97..122) {
+  foreach my $bn (48..57,65..90,97..122) {
      $bchrs[$bi++] = chr($bn);
   }
-  foreach $bn (0..20) {
+  foreach my $bn (0..20) {
      $boundry .= $bchrs[rand($bi)];
   }
   return $boundry;
@@ -145,7 +146,7 @@ sub send
       foreach my $recp (@bccrecepients) {
           $self->{sender}->bcc($recp . "\n");
       }
-      
+
       $self->{sender}->data();
 
       #Send header
@@ -167,7 +168,7 @@ sub send
 
         $self->{sender}->datasend("\n");
         $self->{sender}->datasend($mail->{body} . "\n\n");
-        
+
         my @attachments=split(/,/,$mail->{attachments});
 
         foreach my $attach(@attachments)
@@ -177,9 +178,9 @@ sub send
            $attach=~s/\A[\s,\0,\t,\n,\r]*//;
            $attach=~s/[\s,\0,\t,\n,\r]*\Z//;
 
-           my $opened=open(FH, "$attach");
-           binmode(FH);
-           while (($bytesread = sysread(FH, $buffer, 1024)) == 1024) {
+           my $opened=open(my $file,'<',$attach);
+           binmode($file);
+           while (($bytesread = sysread($file, $buffer, 1024)) == 1024) {
              $total += $bytesread;
              $data .= $buffer;
            }
@@ -187,7 +188,7 @@ sub send
               $data .= $buffer;
               $total += $bytesread;
            }
-           close FH;
+           close $file;
            # Get the file name without its directory
            my ($volume, $dir, $fileName) = File::Spec->splitpath($attach);
            # Get the MIME type
@@ -212,7 +213,7 @@ sub send
         $self->{sender}->datasend("\n");
         $self->{sender}->datasend($mail->{body} . "\n\n");
       }
-   
+
       $self->{sender}->datasend("\n");
       $self->{sender}->dataend();
       print "Sending email\n" if $verbose;
@@ -220,7 +221,7 @@ sub send
   }; # eval
 
   if($@){
-     print "Warning: $@ \n" if $verbose; 
+     print "Warning: $@ \n" if $verbose;
   }
   else
   {
