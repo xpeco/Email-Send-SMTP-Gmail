@@ -4,9 +4,10 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='0.33';
+$VERSION='0.40';
 
-use Net::SMTP::SSL;
+require Net::SMTP::TLS::ButMaintained;
+require Net::SMTP::SSL;
 use MIME::Base64;
 use File::Spec;
 use LWP::MediaTypes;
@@ -17,10 +18,12 @@ sub new{
   bless($self, $class);
   my %properties=@_;
   my $smtp='smtp.gmail.com'; # Default value
-  my $port=465; # Default value
+  my $port='default'; # Default value
+  my $layer='tls'; # Default value
   $smtp=$properties{'-smtp'} if defined $properties{'-smtp'};
   $port=$properties{'-port'} if defined $properties{'-port'};
-  $self->_initsmtp($smtp,$port,$properties{'-login'},$properties{'-pass'},$properties{'-debug'});
+  $layer=$properties{'-layer'} if defined $properties{'-layer'};
+  $self->_initsmtp($smtp,$port,$properties{'-login'},$properties{'-pass'},$layer,$properties{'-debug'});
   $self->{from}=$properties{'-login'};
   return $self;
 }
@@ -31,15 +34,26 @@ sub _initsmtp{
   my $port=shift;
   my $login=shift;
   my $pass=shift;
+  my $layer=shift;
   my $debug=shift;
+
   # The module sets the SMTP google but could use another!
-  if (not $self->{sender} = Net::SMTP::SSL->new($smtp, Port => $port,
-                                                       Debug => $debug,
-                                                       SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE)) { 
-      die "Could not connect to SMTP server\n";  
+  print "Connecting to $smtp using $layer\n" if $debug;
+  if($layer eq 'tls'){
+    $port=25 if ($port eq 'default');
+    if (not $self->{sender} = Net::SMTP::TLS::ButMaintained->new($smtp, Port => $port, User=> $login, Password=> $pass)){
+        die "Could not connect to SMTP server\n";
+    }
   }
-  # Authenticate
-  $self->{sender}->auth($login,$pass) || die "Authentication (SMTP) failed\n";
+  else {  # SSL
+    $port=465 if ($port eq 'default');
+    if (not $self->{sender} = Net::SMTP::SSL->new($smtp, Port => $port, Debug=> $debug)){
+        die "Could not connect to SMTP server\n";
+    }
+    # Authenticate
+    $self->{sender}->auth($login,$pass) || die "Authentication (SMTP) failed\n";
+  }
+  return $self;
 }
 
 sub bye{
@@ -54,6 +68,7 @@ sub _checkfiles
   my $self=shift;
   my $attachs=shift;
   my @attachments=split(/,/,$attachs);
+
   foreach my $attach(@attachments)
   {
      $attach=~s/\A[\s,\0,\t,\n,\r]*//;
@@ -63,24 +78,28 @@ sub _checkfiles
        $self->bye;
        die "Unable to find the attachment file: $attach\n";
      }
-     my $opened=open(FH, "$attach");
+     my $opened=open(my $file,'<',$attach);
      if( not $opened){
         $self->bye;
         die "Unable to open the attachment file: $attach\n";
      }
+     else{
+       close $file;
+     }
   }
+
   return 1;
 }
 
 sub _createboundry
 {
 # Create arbitrary frontier text used to seperate different parts of the message
-  my ($bi, $bn, @bchrs);
+  my ($bi, @bchrs);
   my $boundry = "";
-  foreach $bn (48..57,65..90,97..122) {
+  foreach my $bn (48..57,65..90,97..122) {
      $bchrs[$bi++] = chr($bn);
   }
-  foreach $bn (0..20) {
+  foreach my $bn (0..20) {
      $boundry .= $bchrs[rand($bi)];
   }
   return $boundry;
@@ -145,7 +164,7 @@ sub send
       foreach my $recp (@bccrecepients) {
           $self->{sender}->bcc($recp . "\n");
       }
-      
+
       $self->{sender}->data();
 
       #Send header
@@ -167,7 +186,7 @@ sub send
 
         $self->{sender}->datasend("\n");
         $self->{sender}->datasend($mail->{body} . "\n\n");
-        
+
         my @attachments=split(/,/,$mail->{attachments});
 
         foreach my $attach(@attachments)
@@ -177,9 +196,9 @@ sub send
            $attach=~s/\A[\s,\0,\t,\n,\r]*//;
            $attach=~s/[\s,\0,\t,\n,\r]*\Z//;
 
-           my $opened=open(FH, "$attach");
-           binmode(FH);
-           while (($bytesread = sysread(FH, $buffer, 1024)) == 1024) {
+           my $opened=open(my $file,'<',$attach);
+           binmode($file);
+           while (($bytesread = sysread($file, $buffer, 1024)) == 1024) {
              $total += $bytesread;
              $data .= $buffer;
            }
@@ -187,7 +206,7 @@ sub send
               $data .= $buffer;
               $total += $bytesread;
            }
-           close FH;
+           close $file;
            # Get the file name without its directory
            my ($volume, $dir, $fileName) = File::Spec->splitpath($attach);
            # Get the MIME type
@@ -212,7 +231,7 @@ sub send
         $self->{sender}->datasend("\n");
         $self->{sender}->datasend($mail->{body} . "\n\n");
       }
-   
+
       $self->{sender}->datasend("\n");
       $self->{sender}->dataend();
       print "Sending email\n" if $verbose;
@@ -220,12 +239,13 @@ sub send
   }; # eval
 
   if($@){
-     print "Warning: $@ \n" if $verbose; 
+     print "Warning: $@ \n" if $verbose;
   }
   else
   {
      print "Mail sent!\n" if $verbose;
   }
+  return;
 }
 
 1;
@@ -233,7 +253,7 @@ __END__
 
 =head1 NAME
 
-Email::Send::SMTP::Gmail - Sends emails with attachments using Google's SMTP
+Email::Send::SMTP::Gmail - Sends emails with attachments supporting Auth over TLS or SSL (for example: Google's SMTP)
 
 =head1 SYNOPSIS
 
@@ -262,17 +282,26 @@ Simple module to send emails through Google's SMTP with or without attachments.
 Works with regular Gmail accounts as with Google Apps (your own domains).
 It supports basic functions such as CC, BCC, ReplyTo.
 
-=over 2 
+=over2
 
-=item new(-login=>'', -pass=>'' [, -debug=>''])
+=item new(-login=>'', -pass=>'' [,-smtp=>'',layer=>'',-port=>'',-debug=>''])
 
 It creates the object and opens a session with the SMTP.
+
+=over6
+
+smtp: defines SMTP server. Default value: smtp.gmail.com
+layer: defines the secure layer to use. It could be 'tls'or 'ssl'. Default value: tls
+port: defines the port to use. Default values are 25 for tls and 465 for ssl
+debug: only really works with ssl layer (because currently Net::SMTP::TLS::ButMaintained doesn't support it).
+
+=back
 
 =item send(-to=>'', [-subject=>'', -cc=>'', -bcc=>'', -replyto=>'', -charset=>'', -body=>'', -attachments=>''])
 
 It composes and sends the email in one shot
 
-=over 6
+=over6
 
 =item  to, cc, bcc: comma separated email addresses
 
@@ -283,7 +312,7 @@ It composes and sends the email in one shot
 =back
 
 =item bye
- 
+
 Closes the SMTP session
 
 =back
