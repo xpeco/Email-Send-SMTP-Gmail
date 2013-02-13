@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='0.40';
+$VERSION='0.41';
 
 require Net::SMTP::TLS::ButMaintained;
 require Net::SMTP::SSL;
@@ -262,16 +262,11 @@ Email::Send::SMTP::Gmail - Sends emails with attachments supporting Auth over TL
 
    use Email::Send::SMTP::Gmail;
 
-   my $mail=Email::Send::SMTP::Gmail->new( -smtp=>'gmail.com',
+   my $mail=Email::Send::SMTP::Gmail->new( -smtp=>'smtp.gmail.com',
                                            -login=>'whateveraddress@gmail.com',
                                            -pass=>'whatever_pass');
 
-   $mail->send(-to=>'target@xxx.com',
-               -subject=>'Hello!',
-               -charset=>'KOI8-R'
-               -verbose=>'1',
-               -body=>'Just testing it',
-               -contenttype => 'text/plain',
+   $mail->send(-to=>'target@xxx.com', -subject=>'Hello!', -body=>'Just testing it', 
                -attachments=>'full_path_to_file');
 
    $mail->bye;
@@ -290,24 +285,31 @@ It creates the object and opens a session with the SMTP.
 
 =over6
 
-smtp: defines SMTP server. Default value: smtp.gmail.com
-layer: defines the secure layer to use. It could be 'tls'or 'ssl'. Default value: tls
-port: defines the port to use. Default values are 25 for tls and 465 for ssl
-debug: only really works with ssl layer (because currently Net::SMTP::TLS::ButMaintained doesn't support it).
+=item I<smtp>: defines SMTP server. Default value: smtp.gmail.com
+
+=item I<layer>: defines the secure layer to use. It could be 'tls'or 'ssl'. Default value: tls
+
+=item I<port>: defines the port to use. Default values are 25 for tls and 465 for ssl
+
+=item I<debug>: only really works with ssl layer (because currently Net::SMTP::TLS::ButMaintained doesn't support it).
+
+=item
 
 =back
 
-=item send(-to=>'', [-subject=>'', -cc=>'', -bcc=>'', -replyto=>'', -charset=>'', -body=>'', -attachments=>''])
+=item send(-to=>'', [-subject=>'', -cc=>'', -bcc=>'', -replyto=>'', -charset=>'', -body=>'', -attachments=>'', -verbose=>'1'])
 
 It composes and sends the email in one shot
 
 =over6
 
-=item  to, cc, bcc: comma separated email addresses
+=item I<to, cc, bcc>: comma separated email addresses
 
-=item  contenttype: Content-Type for the body message. Examples are: text/plain (default), text/html, etc.
+=item I<contenttype>: Content-Type for the body message. Examples are: text/plain (default), text/html, etc.
 
-=item attachments: comma separated files with full path
+=item I<attachments>: comma separated files with full path
+
+=item
 
 =back
 
@@ -358,10 +360,9 @@ Juan Jose 'Peco' San Martin, C<< <peco at cpan.org> >>
 
 =head1 COPYRIGHT
 
-Copyright 2012 Microbotica
+Copyright 2013 Microbotica
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
 
 =cut
-

@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "Email::Send::SMTP::Gmail 3"
-.TH Email::Send::SMTP::Gmail 3 "2013-02-11" "perl v5.14.2" "User Contributed Perl Documentation"
+.TH Email::Send::SMTP::Gmail 3 "2013-02-13" "perl v5.14.2" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -139,16 +139,11 @@ Email::Send::SMTP::Gmail \- Sends emails with attachments supporting Auth over T
 \&
 \&   use Email::Send::SMTP::Gmail;
 \&
-\&   my $mail=Email::Send::SMTP::Gmail\->new( \-smtp=>\*(Aqgmail.com\*(Aq,
+\&   my $mail=Email::Send::SMTP::Gmail\->new( \-smtp=>\*(Aqsmtp.gmail.com\*(Aq,
 \&                                           \-login=>\*(Aqwhateveraddress@gmail.com\*(Aq,
 \&                                           \-pass=>\*(Aqwhatever_pass\*(Aq);
 \&
-\&   $mail\->send(\-to=>\*(Aqtarget@xxx.com\*(Aq,
-\&               \-subject=>\*(AqHello!\*(Aq,
-\&               \-charset=>\*(AqKOI8\-R\*(Aq
-\&               \-verbose=>\*(Aq1\*(Aq,
-\&               \-body=>\*(AqJust testing it\*(Aq,
-\&               \-contenttype => \*(Aqtext/plain\*(Aq,
+\&   $mail\->send(\-to=>\*(Aqtarget@xxx.com\*(Aq, \-subject=>\*(AqHello!\*(Aq, \-body=>\*(AqJust testing it\*(Aq, 
 \&               \-attachments=>\*(Aqfull_path_to_file\*(Aq);
 \&
 \&   $mail\->bye;
@@ -161,21 +156,28 @@ It supports basic functions such as \s-1CC\s0, \s-1BCC\s0, ReplyTo.
 .IP "new(\-login=>'', \-pass=>'' [,\-smtp=>'',layer=>'',\-port=>'',\-debug=>''])" 4
 .IX Item "new(-login=>'', -pass=>'' [,-smtp=>'',layer=>'',-port=>'',-debug=>''])"
 It creates the object and opens a session with the \s-1SMTP\s0.
-.Sp
-smtp: defines \s-1SMTP\s0 server. Default value: smtp.gmail.com
-layer: defines the secure layer to use. It could be 'tls'or 'ssl'. Default value: tls
-port: defines the port to use. Default values are 25 for tls and 465 for ssl
-debug: only really works with ssl layer (because currently Net::SMTP::TLS::ButMaintained doesn't support it).
-.IP "send(\-to=>'', [\-subject=>'', \-cc=>'', \-bcc=>'', \-replyto=>'', \-charset=>'', \-body=>'', \-attachments=>''])" 4
-.IX Item "send(-to=>'', [-subject=>'', -cc=>'', -bcc=>'', -replyto=>'', -charset=>'', -body=>'', -attachments=>''])"
+.IP "\fIsmtp\fR: defines \s-1SMTP\s0 server. Default value: smtp.gmail.com" 4
+.IX Item "smtp: defines SMTP server. Default value: smtp.gmail.com"
+.PD 0
+.IP "\fIlayer\fR: defines the secure layer to use. It could be 'tls'or 'ssl'. Default value: tls" 4
+.IX Item "layer: defines the secure layer to use. It could be 'tls'or 'ssl'. Default value: tls"
+.IP "\fIport\fR: defines the port to use. Default values are 25 for tls and 465 for ssl" 4
+.IX Item "port: defines the port to use. Default values are 25 for tls and 465 for ssl"
+.IP "\fIdebug\fR: only really works with ssl layer (because currently Net::SMTP::TLS::ButMaintained doesn't support it)." 4
+.IX Item "debug: only really works with ssl layer (because currently Net::SMTP::TLS::ButMaintained doesn't support it)."
+.IP "" 4
+.IP "send(\-to=>'', [\-subject=>'', \-cc=>'', \-bcc=>'', \-replyto=>'', \-charset=>'', \-body=>'', \-attachments=>'', \-verbose=>'1'])" 4
+.IX Item "send(-to=>'', [-subject=>'', -cc=>'', -bcc=>'', -replyto=>'', -charset=>'', -body=>'', -attachments=>'', -verbose=>'1'])"
+.PD
 It composes and sends the email in one shot
-.IP "to, cc, bcc: comma separated email addresses" 4
+.IP "\fIto, cc, bcc\fR: comma separated email addresses" 4
 .IX Item "to, cc, bcc: comma separated email addresses"
 .PD 0
-.IP "contenttype: Content-Type for the body message. Examples are: text/plain (default), text/html, etc." 4
+.IP "\fIcontenttype\fR: Content-Type for the body message. Examples are: text/plain (default), text/html, etc." 4
 .IX Item "contenttype: Content-Type for the body message. Examples are: text/plain (default), text/html, etc."
-.IP "attachments: comma separated files with full path" 4
+.IP "\fIattachments\fR: comma separated files with full path" 4
 .IX Item "attachments: comma separated files with full path"
+.IP "" 4
 .IP "bye" 4
 .IX Item "bye"
 .PD
@@ -216,20 +218,20 @@ Martin Vukovic, \f(CW\*(C`<mvukovic at microbotica.es>\*(C'\fR
 Juan Jose 'Peco' San Martin, \f(CW\*(C`<peco at cpan.org>\*(C'\fR
 .SH "COPYRIGHT"
 .IX Header "COPYRIGHT"
-Copyright 2012 Microbotica
+Copyright 2013 Microbotica
 .PP
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 .SH "POD ERRORS"
 .IX Header "POD ERRORS"
 Hey! \fBThe above document had some coding errors, which are explained below:\fR
-.IP "Around line 285:" 4
-.IX Item "Around line 285:"
+.IP "Around line 280:" 4
+.IX Item "Around line 280:"
 Unknown directive: =over2
-.IP "Around line 287:" 4
-.IX Item "Around line 287:"
+.IP "Around line 282:" 4
+.IX Item "Around line 282:"
 \&'=item' outside of any '=over'
-.IP "Around line 291:" 4
-.IX Item "Around line 291:"
+.IP "Around line 286:" 4
+.IX Item "Around line 286:"
 Unknown directive: =over6
 .IP "Around line 300:" 4
 .IX Item "Around line 300:"
@@ -237,6 +239,6 @@ Unknown directive: =over6
 .IP "Around line 304:" 4
 .IX Item "Around line 304:"
 Unknown directive: =over6
-.IP "Around line 314:" 4
-.IX Item "Around line 314:"
+.IP "Around line 316:" 4
+.IX Item "Around line 316:"
 \&'=item' outside of any '=over'
