@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='0.41';
+$VERSION='0.42';
 
 require Net::SMTP::TLS::ButMaintained;
 require Net::SMTP::SSL;
@@ -277,13 +277,13 @@ Simple module to send emails through Google's SMTP with or without attachments.
 Works with regular Gmail accounts as with Google Apps (your own domains).
 It supports basic functions such as CC, BCC, ReplyTo.
 
-=over2
+=over
 
 =item new(-login=>'', -pass=>'' [,-smtp=>'',layer=>'',-port=>'',-debug=>''])
 
 It creates the object and opens a session with the SMTP.
 
-=over6
+=over
 
 =item I<smtp>: defines SMTP server. Default value: smtp.gmail.com
 
@@ -301,7 +301,7 @@ It creates the object and opens a session with the SMTP.
 
 It composes and sends the email in one shot
 
-=over6
+=over
 
 =item I<to, cc, bcc>: comma separated email addresses
 
@@ -349,6 +349,10 @@ L<http://cpanratings.perl.org/d/Email-Send-SMTP-Gmail>
 =item * Search CPAN
 
 L<http://search.cpan.org/dist/Email-Send-SMTP-Gmail/>
+
+=item * Repository
+
+L<http://github.com/NoAuth/Bugs.html?Dist=Email-Send-SMTP-Gmail>
 
 =back
 
