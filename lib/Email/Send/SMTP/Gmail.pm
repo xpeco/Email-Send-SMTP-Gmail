@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='0.42';
+$VERSION='0.43';
 
 require Net::SMTP::TLS::ButMaintained;
 require Net::SMTP::SSL;
@@ -293,7 +293,6 @@ It creates the object and opens a session with the SMTP.
 
 =item I<debug>: only really works with ssl layer (because currently Net::SMTP::TLS::ButMaintained doesn't support it).
 
-=item
 
 =back
 
@@ -308,8 +307,6 @@ It composes and sends the email in one shot
 =item I<contenttype>: Content-Type for the body message. Examples are: text/plain (default), text/html, etc.
 
 =item I<attachments>: comma separated files with full path
-
-=item
 
 =back
 
