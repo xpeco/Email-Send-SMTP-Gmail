@@ -1,10 +1,10 @@
-package Gmail;
+package Email::Send::SMTP::Gmail;
 
 use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='0.43';
+$VERSION='0.44';
 
 require Net::SMTP::TLS::ButMaintained;
 require Net::SMTP::SSL;
