@@ -3,11 +3,13 @@ package Email::Send::SMTP::Gmail;
 use strict;
 use warnings;
 use vars qw($VERSION);
+use utf8;
 
-$VERSION='0.44';
+$VERSION='0.46';
 
 require Net::SMTP::TLS::ButMaintained;
 require Net::SMTP::SSL;
+require Net::SMTP;
 use MIME::Base64;
 use File::Spec;
 use LWP::MediaTypes;
@@ -45,7 +47,7 @@ sub _initsmtp{
         die "Could not connect to SMTP server\n";
     }
   }
-  else {  # SSL
+  elsif($layer eq 'ssl') {  # SSL
     $port=465 if ($port eq 'default');
     if (not $self->{sender} = Net::SMTP::SSL->new($smtp, Port => $port, Debug=> $debug)){
         die "Could not connect to SMTP server\n";
@@ -53,6 +55,17 @@ sub _initsmtp{
     # Authenticate
     $self->{sender}->auth($login,$pass) || die "Authentication (SMTP) failed\n";
   }
+  elsif($layer=~/plain|none/) { # Plain
+    $port=25 if ($port eq 'default');
+    if (not $self->{sender} = Net::SMTP->new($smtp, Port => $port, Debug=> $debug)){
+         die "Could not connect to SMTP server\n";
+    }
+    # Authenticate
+    if($layer eq 'plain'){
+      $self->{sender}->auth($login,$pass) || die "Authentication (SMTP) failed\n";
+    }
+  }
+
   return $self;
 }
 
@@ -118,7 +131,10 @@ sub send
   $mail->{to}='';
   $mail->{to}=$properties{'-to'} if defined $properties{'-to'};
 
-  $mail->{replyto}=$self->{from};
+  $mail->{from}=$self->{from};
+  $mail->{from}=$properties{'-from'} if defined $properties{'-from'};
+
+  $mail->{replyto}=$mail->{from};
   $mail->{replyto}=$properties{'-replyto'} if defined $properties{'-replyto'};
 
   $mail->{cc}='';
@@ -150,7 +166,7 @@ sub send
   eval{
       my $boundry=_createboundry();
 
-      $self->{sender}->mail($self->{from}. "\n");
+      $self->{sender}->mail($mail->{from} . "\n");
 
       my @recepients = split(/,/, $mail->{to});
       foreach my $recp (@recepients) {
@@ -168,7 +184,7 @@ sub send
       $self->{sender}->data();
 
       #Send header
-      $self->{sender}->datasend("From: " . $self->{from} . "\n");
+      $self->{sender}->datasend("From: " . $mail->{from} . "\n");
       $self->{sender}->datasend("To: " . $mail->{to} . "\n");
       $self->{sender}->datasend("Cc: " . $mail->{cc} . "\n") if $mail->{cc} ne '';
       $self->{sender}->datasend("Reply-To: " . $mail->{replyto} . "\n");
@@ -229,7 +245,7 @@ sub send
         $self->{sender}->datasend("MIME-Version: 1.0\n");
         $self->{sender}->datasend("Content-Type: ".$mail->{contenttype}."; charset=".$mail->{charset}."\n");
         $self->{sender}->datasend("\n");
-        $self->{sender}->datasend($mail->{body} . "\n\n");
+        $self->{sender}->datasend($mail->{body}."\n\n");
       }
 
       $self->{sender}->datasend("\n");
@@ -253,7 +269,7 @@ __END__
 
 =head1 NAME
 
-Email::Send::SMTP::Gmail - Sends emails with attachments supporting Auth over TLS or SSL (for example: Google's SMTP)
+Email::Send::SMTP::Gmail - Sends emails with attachments supporting Auth over TLS or SSL (for example: Google's SMTP). Auth plain and noAuth are also supported
 
 =head1 SYNOPSIS
 
@@ -266,14 +282,14 @@ Email::Send::SMTP::Gmail - Sends emails with attachments supporting Auth over TL
                                            -login=>'whateveraddress@gmail.com',
                                            -pass=>'whatever_pass');
 
-   $mail->send(-to=>'target@xxx.com', -subject=>'Hello!', -body=>'Just testing it', 
+   $mail->send(-to=>'target@xxx.com', -subject=>'Hello!', -body=>'Just testing it',
                -attachments=>'full_path_to_file');
 
    $mail->bye;
 
 =head1 DESCRIPTION
 
-Simple module to send emails through Google's SMTP with or without attachments.
+Simple module to send emails through Google's SMTP with or without attachments. Also supports regular Servers (with plain or none auth).
 Works with regular Gmail accounts as with Google Apps (your own domains).
 It supports basic functions such as CC, BCC, ReplyTo.
 
@@ -287,7 +303,7 @@ It creates the object and opens a session with the SMTP.
 
 =item I<smtp>: defines SMTP server. Default value: smtp.gmail.com
 
-=item I<layer>: defines the secure layer to use. It could be 'tls'or 'ssl'. Default value: tls
+=item I<layer>: defines the secure layer to use. It could be 'tls', 'ssl', 'plain' or 'none'. Default value: tls
 
 =item I<port>: defines the port to use. Default values are 25 for tls and 465 for ssl
 
@@ -296,7 +312,7 @@ It creates the object and opens a session with the SMTP.
 
 =back
 
-=item send(-to=>'', [-subject=>'', -cc=>'', -bcc=>'', -replyto=>'', -charset=>'', -body=>'', -attachments=>'', -verbose=>'1'])
+=item send(-from=>'', -to=>'', [-subject=>'', -cc=>'', -bcc=>'', -replyto=>'', -charset=>'', -body=>'', -attachments=>'', -verbose=>'1'])
 
 It composes and sends the email in one shot
 
@@ -313,6 +329,34 @@ It composes and sends the email in one shot
 =item bye
 
 Closes the SMTP session
+
+=back
+
+=head1 Examples
+
+Examples
+
+=over
+
+Send email composed in HTML using Gmail
+
+      use strict;
+      use warnings;
+      use Email::Send::SMTP::Gmail;
+      my $mail=Email::Send::SMTP::Gmail->new( -smtp=>'smtp.gmail.com',
+                                              -login=>'whateveraddress@gmail.com',
+                                              -pass=>'whatever_pass');
+      $mail->send(-to=>'target@xxx.com', -subject=>'Hello!', -body=>'Just testing it<br>Bye!',-contenttype=>'text/html');
+      $mail->bye;
+
+Send email using a SMTP server without authentication
+
+      use strict;
+      use warnings;
+      use Email::Send::SMTP::Gmail;
+      my $mail=Email::Send::SMTP::Gmail->new( -smtp=>'my.smtp.server', -layer=>'none')
+      $mail->send(-from=>'sender@yyy.com', -to=>'target@xxx.com', -subject=>'Hello!', -body=>'Quick email');
+      $mail->bye;
 
 =back
 
@@ -359,11 +403,12 @@ Martin Vukovic, C<< <mvukovic at microbotica.es> >>
 
 Juan Jose 'Peco' San Martin, C<< <peco at cpan.org> >>
 
+Flaviano Tresoldi, C<< <info@swwork.it> >>
+
 =head1 COPYRIGHT
 
 Copyright 2013 Microbotica
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
-
 
 =cut

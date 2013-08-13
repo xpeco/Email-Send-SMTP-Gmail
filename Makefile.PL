@@ -13,6 +13,7 @@ WriteMakefile(
     PL_FILES            => {},
     PREREQ_PM => {
         'Test::More' => 0,
+        'Net::SMTP' => 0,
         'Net::SMTP::SSL' => 0,
         'Net::SMTP::TLS::ButMaintained' => 0,
         'Net::SMTP_auth' => 0,
@@ -22,4 +23,5 @@ WriteMakefile(
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Email-Send-SMTP-Gmail-*' },
+    test                => {TESTS => 't/*.t'}
 );

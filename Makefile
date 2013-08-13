@@ -22,6 +22,7 @@
 #     VERSION_FROM => q[lib/Email/Send/SMTP/Gmail.pm]
 #     clean => { FILES=>q[Email-Send-SMTP-Gmail-*] }
 #     dist => { COMPRESS=>q[gzip -9f], SUFFIX=>q[gz] }
+#     test => { TESTS=>q[t/*.t] }
 
 # --- MakeMaker post_initialize section:
 
