@@ -18,7 +18,7 @@
 #     LICENSE => q[perl]
 #     NAME => q[Email::Send::SMTP::Gmail]
 #     PL_FILES => {  }
-#     PREREQ_PM => { Test::More=>q[0], MIME::Base64=>q[0], Net::SMTP_auth=>q[0], File::Spec=>q[0], LWP::MediaTypes=>q[0], Net::SMTP::SSL=>q[0], Net::SMTP::TLS::ButMaintained=>q[0] }
+#     PREREQ_PM => { Test::More=>q[0], MIME::Base64=>q[0], Net::SMTPS=>q[0], Net::SMTP_auth=>q[0], File::Spec=>q[0], LWP::MediaTypes=>q[0] }
 #     VERSION_FROM => q[lib/Email/Send/SMTP/Gmail.pm]
 #     clean => { FILES=>q[Email-Send-SMTP-Gmail-*] }
 #     dist => { COMPRESS=>q[gzip -9f], SUFFIX=>q[gz] }
@@ -61,11 +61,11 @@ DIRFILESEP = /
 DFSEP = $(DIRFILESEP)
 NAME = Email::Send::SMTP::Gmail
 NAME_SYM = Email_Send_SMTP_Gmail
-VERSION = 0.44
+VERSION = 0.56
 VERSION_MACRO = VERSION
-VERSION_SYM = 0_44
+VERSION_SYM = 0_56
 DEFINE_VERSION = -D$(VERSION_MACRO)=\"$(VERSION)\"
-XS_VERSION = 0.44
+XS_VERSION = 0.56
 XS_VERSION_MACRO = XS_VERSION
 XS_DEFINE_VERSION = -D$(XS_VERSION_MACRO)=\"$(XS_VERSION)\"
 INST_ARCHLIB = blib/arch
@@ -259,7 +259,7 @@ RCS_LABEL = rcs -Nv$(VERSION_SYM): -q
 DIST_CP = best
 DIST_DEFAULT = tardist
 DISTNAME = Email-Send-SMTP-Gmail
-DISTVNAME = Email-Send-SMTP-Gmail-0.44
+DISTVNAME = Email-Send-SMTP-Gmail-0.56
 
 
 # --- MakeMaker macro section:
@@ -480,7 +480,7 @@ realclean purge ::  clean realclean_subdirs
 metafile : create_distdir
 	$(NOECHO) $(ECHO) Generating META.yml
 	$(NOECHO) $(ECHO) '---' > META_new.yml
-	$(NOECHO) $(ECHO) 'abstract: "Sends emails with attachments supporting Auth over TLS or SSL (for example: Google'\''s SMTP)"' >> META_new.yml
+	$(NOECHO) $(ECHO) 'abstract: "Sends emails with attachments supporting Auth over TLS or SSL (for example: Google'\''s SMTP)."' >> META_new.yml
 	$(NOECHO) $(ECHO) 'author:' >> META_new.yml
 	$(NOECHO) $(ECHO) '  - "Juan José '\''Peco'\'' San Martín <peco@cpan.org>"' >> META_new.yml
 	$(NOECHO) $(ECHO) 'build_requires:' >> META_new.yml
@@ -502,15 +502,14 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '  File::Spec: 0' >> META_new.yml
 	$(NOECHO) $(ECHO) '  LWP::MediaTypes: 0' >> META_new.yml
 	$(NOECHO) $(ECHO) '  MIME::Base64: 0' >> META_new.yml
-	$(NOECHO) $(ECHO) '  Net::SMTP::SSL: 0' >> META_new.yml
-	$(NOECHO) $(ECHO) '  Net::SMTP::TLS::ButMaintained: 0' >> META_new.yml
+	$(NOECHO) $(ECHO) '  Net::SMTPS: 0' >> META_new.yml
 	$(NOECHO) $(ECHO) '  Net::SMTP_auth: 0' >> META_new.yml
 	$(NOECHO) $(ECHO) '  Test::More: 0' >> META_new.yml
-	$(NOECHO) $(ECHO) 'version: 0.44' >> META_new.yml
+	$(NOECHO) $(ECHO) 'version: 0.56' >> META_new.yml
 	-$(NOECHO) $(MV) META_new.yml $(DISTVNAME)/META.yml
 	$(NOECHO) $(ECHO) Generating META.json
 	$(NOECHO) $(ECHO) '{' > META_new.json
-	$(NOECHO) $(ECHO) '   "abstract" : "Sends emails with attachments supporting Auth over TLS or SSL (for example: Google'\''s SMTP)",' >> META_new.json
+	$(NOECHO) $(ECHO) '   "abstract" : "Sends emails with attachments supporting Auth over TLS or SSL (for example: Google'\''s SMTP).",' >> META_new.json
 	$(NOECHO) $(ECHO) '   "author" : [' >> META_new.json
 	$(NOECHO) $(ECHO) '      "Juan José '\''Peco'\'' San Martín <peco@cpan.org>"' >> META_new.json
 	$(NOECHO) $(ECHO) '   ],' >> META_new.json
@@ -546,15 +545,14 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '            "File::Spec" : 0,' >> META_new.json
 	$(NOECHO) $(ECHO) '            "LWP::MediaTypes" : 0,' >> META_new.json
 	$(NOECHO) $(ECHO) '            "MIME::Base64" : 0,' >> META_new.json
-	$(NOECHO) $(ECHO) '            "Net::SMTP::SSL" : 0,' >> META_new.json
-	$(NOECHO) $(ECHO) '            "Net::SMTP::TLS::ButMaintained" : 0,' >> META_new.json
+	$(NOECHO) $(ECHO) '            "Net::SMTPS" : 0,' >> META_new.json
 	$(NOECHO) $(ECHO) '            "Net::SMTP_auth" : 0,' >> META_new.json
 	$(NOECHO) $(ECHO) '            "Test::More" : 0' >> META_new.json
 	$(NOECHO) $(ECHO) '         }' >> META_new.json
 	$(NOECHO) $(ECHO) '      }' >> META_new.json
 	$(NOECHO) $(ECHO) '   },' >> META_new.json
 	$(NOECHO) $(ECHO) '   "release_status" : "stable",' >> META_new.json
-	$(NOECHO) $(ECHO) '   "version" : "0.44"' >> META_new.json
+	$(NOECHO) $(ECHO) '   "version" : "0.56"' >> META_new.json
 	$(NOECHO) $(ECHO) '}' >> META_new.json
 	-$(NOECHO) $(MV) META_new.json $(DISTVNAME)/META.json
 
@@ -850,15 +848,14 @@ testdb_static :: testdb_dynamic
 # --- MakeMaker ppd section:
 # Creates a PPD (Perl Package Description) for a binary distribution.
 ppd :
-	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="0.44">' > $(DISTNAME).ppd
-	$(NOECHO) $(ECHO) '    <ABSTRACT>Sends emails with attachments supporting Auth over TLS or SSL (for example: Google'\''s SMTP)</ABSTRACT>' >> $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="0.56">' > $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '    <ABSTRACT>Sends emails with attachments supporting Auth over TLS or SSL (for example: Google'\''s SMTP).</ABSTRACT>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR>Juan José '\''Peco'\'' San Martín &lt;peco@cpan.org&gt;</AUTHOR>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="File::Spec" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="LWP::MediaTypes" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="MIME::Base64" />' >> $(DISTNAME).ppd
-	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Net::SMTP::SSL" />' >> $(DISTNAME).ppd
-	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Net::SMTP::TLS::ButMaintained" />' >> $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Net::SMTPS" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Net::SMTP_auth" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Test::More" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <ARCHITECTURE NAME="x86_64-linux-gnu-thread-multi-5.14" />' >> $(DISTNAME).ppd
