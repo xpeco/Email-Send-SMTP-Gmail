@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='0.56';
+$VERSION='0.58';
 
 require Net::SMTPS;
 #require Net::SMTP::SSL;
@@ -414,7 +414,7 @@ Also supports SSL parameters as:
 
 =item I<ssl_verify_file>: SSL_ca_file if SSL_VERIFY_PEER
 
-=item
+
 
 =back
 
@@ -432,7 +432,6 @@ It composes and sends the email in one shot
 
 =item I<attachmentslist>: hashref $list, in format $list->[x]->{name} of files with full path. Example: $list->[0]->{file}='/full_path/file.pdf'
 
-=item
 
 =back
 
@@ -456,7 +455,9 @@ Send email composed in HTML using Gmail
       my $mail=Email::Send::SMTP::Gmail->new( -smtp=>'smtp.gmail.com',
                                               -login=>'whateveraddress@gmail.com',
                                               -pass=>'whatever_pass');
-      $mail->send(-to=>'target@xxx.com', -subject=>'Hello!', -body=>'Just testing it<br>Bye!',-contenttype=>'text/html');
+
+      $mail->send(-to=>'target@xxx.com', -subject=>'Hello!',
+                  -body=>'Just testing it<br>Bye!',-contenttype=>'text/html');
       $mail->bye;
 
 Send email using a SMTP server without secure layer and authentication
@@ -464,8 +465,10 @@ Send email using a SMTP server without secure layer and authentication
       use strict;
       use warnings;
       use Email::Send::SMTP::Gmail;
-      my $mail=Email::Send::SMTP::Gmail->new( -smtp=>'my.smtp.server',-layer=>'none', -auth=>'none')
-      $mail->send(-from=>'sender@yyy.com', -to=>'target@xxx.com', -subject=>'Hello!', -body=>'Quick email');
+      my $mail=Email::Send::SMTP::Gmail->new( -smtp=>'my.smtp.server',-layer=>'none', -auth=>'none');
+
+      $mail->send(-from=>'sender@yyy.com', -to=>'target@xxx.com', -subject=>'Hello!',
+                  -body=>'Quick email');
       $mail->bye;
 
 Send email with attachments in comma separated format
@@ -477,7 +480,8 @@ Send email with attachments in comma separated format
                                               -login=>'whateveraddress@gmail.com',
                                               -pass=>'whatever_pass');
 
-      $mail->send(-to=>'target@xxx.com', -subject=>'Hello!', -body=>'Just testing it<br>Bye!',-contenttype=>'text/html',
+      $mail->send(-to=>'target@xxx.com', -subject=>'Hello!',
+                  -body=>'Just testing it<br>Bye!',-contenttype=>'text/html',
                   -attachments=>'/full_path/file1.pdf,/full_path/file2.pdf');
       $mail->bye;
 
@@ -494,7 +498,9 @@ Send email with attachments using hashref
       $att->[0]->{file}='/full_path/file.pdf';
       $att->[1]->{file}='/full_path/file1.pdf';
 
-      $mail->send(-to=>'target@xxx.com', -subject=>'Hello!', -body=>'Just testing it<br>Bye!',-contenttype=>'text/html', -attachmentlist=>$att);
+      $mail->send(-to=>'target@xxx.com', -subject=>'Hello!',
+                  -body=>'Just testing it<br>Bye!',-contenttype=>'text/html',
+                  -attachmentlist=>$att);
       $mail->bye;
 
 =back
