@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='0.58';
+$VERSION='0.59';
 
 require Net::SMTPS;
 #require Net::SMTP::SSL;
@@ -74,7 +74,8 @@ sub _initsmtp{
   elsif($layer eq 'ssl'){$sec='ssl';}
   # Connect
   if (not $self->{sender} = Net::SMTPS->new($smtp, Port =>$port, doSSL=>$sec, Debug=>$debug, SSL_verify_mode=>$ssl_mode, SSL_ca_file=>$ssl_ca,SSL_ca_path=>$ssl_path)){
-      die "Could not connect to SMTP server\n";
+      print "Could not connect to SMTP server\n";
+      return -1;
   }
   if($auth ne 'none'){
      unless($self->{sender}->auth($login,$pass,$auth)){
