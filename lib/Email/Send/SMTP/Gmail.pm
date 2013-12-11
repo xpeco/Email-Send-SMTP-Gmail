@@ -4,12 +4,10 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='0.59';
+$VERSION='0.80';
 
 require Net::SMTPS;
-#require Net::SMTP::SSL;
-#require Net::SMTP;
-#require Net::SMTP::TLS::ButMaintained;
+require Net::SMTP;
 use MIME::Base64;
 use File::Spec;
 use LWP::MediaTypes;
@@ -69,20 +67,31 @@ sub _initsmtp{
   }
 
   # Set security layer from $layer
-  my $sec=undef;
-  if($layer eq 'tls'){$sec='starttls';}
-  elsif($layer eq 'ssl'){$sec='ssl';}
+  if($layer eq 'none')
+  {
+    if (not $self->{sender} = Net::SMTP->new($smtp, Port =>$port, Debug=>$debug)){
+      print "Could not connect to SMTP server ($smtp $port)\n";
+      return -1;
+    }
+  }
+  else{
+    my $sec=undef;
+    if($layer eq 'tls'){$sec='starttls';}
+    elsif($layer eq 'ssl'){$sec='ssl';}
   # Connect
-  if (not $self->{sender} = Net::SMTPS->new($smtp, Port =>$port, doSSL=>$sec, Debug=>$debug, SSL_verify_mode=>$ssl_mode, SSL_ca_file=>$ssl_ca,SSL_ca_path=>$ssl_path)){
+    if (not $self->{sender} = Net::SMTPS->new($smtp, Port =>$port, doSSL=>$sec, Debug=>$debug, SSL_verify_mode=>$ssl_mode, SSL_ca_file=>$ssl_ca,SSL_ca_path=>$ssl_path)){
       print "Could not connect to SMTP server\n";
       return -1;
+    }
   }
+
   if($auth ne 'none'){
      unless($self->{sender}->auth($login,$pass,$auth)){
          print "Authentication (SMTP) failed\n";
          return -1;
      }
   }
+
   return $self;
 }
 

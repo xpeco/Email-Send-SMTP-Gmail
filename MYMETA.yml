@@ -21,7 +21,8 @@ requires:
   File::Spec: 0
   LWP::MediaTypes: 0
   MIME::Base64: 0
+  Net::SMTP: 0
   Net::SMTPS: 0
   Net::SMTP_auth: 0
   Test::More: 0
-version: 0.58
+version: 0.80
