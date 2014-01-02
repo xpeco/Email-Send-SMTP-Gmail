@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='0.80';
+$VERSION='0.82';
 
 require Net::SMTPS;
 require Net::SMTP;
@@ -104,38 +104,44 @@ sub bye{
 sub _checkfiles
 {
 # Checks that all the attachments exist
-  my $self=shift;
   my $attachs=shift;
+  my $verbose=shift;
+
+  my $result=''; # list of valid attachments
 
   my @attachments=split(/,/,$attachs);
-
   foreach my $attach(@attachments)
   {
      $attach=~s/\A[\s,\0,\t,\n,\r]*//;
      $attach=~s/[\s,\0,\t,\n,\r]*\Z//;
 
      unless (-f $attach) {
-       $self->bye;
-       die "Unable to find the attachment file: $attach\n";
-     }
-     my $opened=open(my $file,'<',$attach);
-     if( not $opened){
-        $self->bye;
-        die "Unable to open the attachment file: $attach\n";
+       print "Unable to find the attachment file: $attach (removed from list)\n" if $verbose;
      }
      else{
-       close $file;
+       my $opened=open(my $file,'<',$attach);
+       if( not $opened){
+         print "Unable to open the attachment file: $attach (removed from list)\n" if $verbose;
+       }
+       else{
+         close $file;
+         $result.=','.$attach;
+         print "Attachment file: $attach added\n" if $verbose;
+       }
      }
   }
-
-  return 1;
+  $result=~s/\A\,//;
+  return $result;
 }
 
 sub _checkfilelist
 {
 # Checks that all the attachments exist
-  my $self=shift;
   my $attachs=shift;
+  my $verbose=shift;
+
+  my $result=undef; # list of valid attachments
+  my $i=0;
 
   foreach my $attach(@$attachs)
   {
@@ -143,20 +149,22 @@ sub _checkfilelist
      $attach->{file}=~s/[\s,\0,\t,\n,\r]*\Z//;
 
      unless (-f $attach->{file}) {
-       $self->bye;
-       die "Unable to find the attachment file: $attach->{file}\n";
-     }
-     my $opened=open(my $file,'<',$attach->{file});
-     if( not $opened){
-        $self->bye;
-        die "Unable to open the attachment file: $attach->{file}\n";
+       print "Unable to find the attachment file: $attach->{file} (removed from list)\n" if $verbose;
      }
      else{
-       close $file;
+       my $opened=open(my $file,'<',$attach->{file});
+       if( not $opened){
+          print "Unable to open the attachment file: $attach->{file} (removed from list)\n" if $verbose;
+       }
+       else{
+         close $file;
+         $result->[$i]->{file}=$attach->{file};
+         $i++;
+         print "Attachment file: $attach->{file} added\n" if $verbose;
+       }
      }
   }
-
-  return 1;
+  return $result;
 }
 
 sub _createboundary
@@ -211,12 +219,16 @@ sub send
 
   $mail->{attachmentlist}=$properties{'-attachmentlist'} if defined $properties{'-attachmentlist'};
 
-  if(($mail->{attachments} ne '')and($self->_checkfiles($mail->{attachments})))
+#  if(($mail->{attachments} ne '')and($self->_checkfiles($mail->{attachments})))
+  if($mail->{attachments} ne '')
   {
+      $mail->{attachments}=_checkfiles($mail->{attachments},$verbose);
       print "Attachments separated by comma successfully verified\n" if $verbose;
   }
-  if((defined $mail->{attachmentlist})and($self->_checkfilelist($mail->{attachmentlist}))){
-        print "Attachments \@list successfully verified\n" if $verbose;
+#  if((defined $mail->{attachmentlist})and($self->_checkfilelist($mail->{attachmentlist}))){
+  if(defined $mail->{attachmentlist}){
+      $mail->{attachmentlist}=_checkfilelist($mail->{attachmentlist},$verbose);
+      print "Attachments \@list successfully verified\n" if $verbose;
   }
 
   # eval{
