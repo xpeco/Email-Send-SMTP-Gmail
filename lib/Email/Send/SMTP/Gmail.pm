@@ -5,13 +5,14 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='0.83';
+$VERSION='0.84';
 
 require Net::SMTPS;
 require Net::SMTP;
 use MIME::Base64;
 use File::Spec;
 use LWP::MediaTypes;
+use Email::Date::Format qw(email_date);
 
 sub new{
   my $class=shift;
@@ -258,7 +259,7 @@ sub send
       $self->{sender}->datasend("Cc: " . $mail->{cc} . "\n") if ($mail->{cc} ne '');
       $self->{sender}->datasend("Reply-To: " . $mail->{replyto} . "\n");
       $self->{sender}->datasend("Subject: " . $mail->{subject} . "\n");
-      $self->{sender}->datasend("Date: " . localtime . "\n");
+      $self->{sender}->datasend("Date: " . email_date(). "\n");
 
       if($mail->{attachments} ne '')
       {
@@ -568,11 +569,13 @@ L<http://github.com/NoAuth/Bugs.html?Dist=Email-Send-SMTP-Gmail>
 
 =head1 AUTHORS
 
-Martin Vukovic, C<< <mvukovic at microbotica.es> >>
-
 Juan Jose 'Peco' San Martin, C<< <peco at cpan.org> >>
 
-Flaviano Tresoldi, C<< <info@swwork.it> >>
+Martin Vukovic, C<< <mvukovic at microbotica.es> >>
+
+Flaviano Tresoldi, C<< <info at swwork.it> >>
+
+Narcyz Knap, C<< <narcyz.knap at wp.pl> >>
 
 =head1 COPYRIGHT
 
