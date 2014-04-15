@@ -18,6 +18,7 @@ no_index:
     - t
     - inc
 requires:
+  Email::Date::Format: 0
   File::Spec: 0
   LWP::MediaTypes: 0
   MIME::Base64: 0
@@ -25,4 +26,4 @@ requires:
   Net::SMTPS: 0
   Net::SMTP_auth: 0
   Test::More: 0
-version: 0.83
+version: 0.84

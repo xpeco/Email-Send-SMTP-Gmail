@@ -5,7 +5,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='0.84';
+$VERSION='0.85';
 
 require Net::SMTPS;
 require Net::SMTP;
@@ -575,11 +575,11 @@ Martin Vukovic, C<< <mvukovic at microbotica.es> >>
 
 Flaviano Tresoldi, C<< <info at swwork.it> >>
 
-Narcyz Knap, C<< <narcyz.knap at wp.pl> >>
+Narcyz Knap, C<< <narcyz at gumed.edu.pl> >>
 
 =head1 COPYRIGHT
 
-Copyright 2013 Microbotica
+Copyright 2014 Microbotica
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

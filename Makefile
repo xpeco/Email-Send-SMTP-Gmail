@@ -18,7 +18,7 @@
 #     LICENSE => q[perl]
 #     NAME => q[Email::Send::SMTP::Gmail]
 #     PL_FILES => {  }
-#     PREREQ_PM => { Test::More=>q[0], Net::SMTP=>q[0], MIME::Base64=>q[0], Net::SMTPS=>q[0], Net::SMTP_auth=>q[0], File::Spec=>q[0], LWP::MediaTypes=>q[0] }
+#     PREREQ_PM => { Net::SMTPS=>q[0], Net::SMTP_auth=>q[0], File::Spec=>q[0], LWP::MediaTypes=>q[0], Email::Date::Format=>q[0], Test::More=>q[0], Net::SMTP=>q[0], MIME::Base64=>q[0] }
 #     VERSION_FROM => q[lib/Email/Send/SMTP/Gmail.pm]
 #     clean => { FILES=>q[Email-Send-SMTP-Gmail-*] }
 #     dist => { COMPRESS=>q[gzip -9f], SUFFIX=>q[gz] }
@@ -61,11 +61,11 @@ DIRFILESEP = /
 DFSEP = $(DIRFILESEP)
 NAME = Email::Send::SMTP::Gmail
 NAME_SYM = Email_Send_SMTP_Gmail
-VERSION = 0.83
+VERSION = 0.84
 VERSION_MACRO = VERSION
-VERSION_SYM = 0_83
+VERSION_SYM = 0_84
 DEFINE_VERSION = -D$(VERSION_MACRO)=\"$(VERSION)\"
-XS_VERSION = 0.83
+XS_VERSION = 0.84
 XS_VERSION_MACRO = XS_VERSION
 XS_DEFINE_VERSION = -D$(XS_VERSION_MACRO)=\"$(XS_VERSION)\"
 INST_ARCHLIB = blib/arch
@@ -259,7 +259,7 @@ RCS_LABEL = rcs -Nv$(VERSION_SYM): -q
 DIST_CP = best
 DIST_DEFAULT = tardist
 DISTNAME = Email-Send-SMTP-Gmail
-DISTVNAME = Email-Send-SMTP-Gmail-0.83
+DISTVNAME = Email-Send-SMTP-Gmail-0.84
 
 
 # --- MakeMaker macro section:
@@ -499,6 +499,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '    - t' >> META_new.yml
 	$(NOECHO) $(ECHO) '    - inc' >> META_new.yml
 	$(NOECHO) $(ECHO) 'requires:' >> META_new.yml
+	$(NOECHO) $(ECHO) '  Email::Date::Format: 0' >> META_new.yml
 	$(NOECHO) $(ECHO) '  File::Spec: 0' >> META_new.yml
 	$(NOECHO) $(ECHO) '  LWP::MediaTypes: 0' >> META_new.yml
 	$(NOECHO) $(ECHO) '  MIME::Base64: 0' >> META_new.yml
@@ -506,7 +507,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '  Net::SMTPS: 0' >> META_new.yml
 	$(NOECHO) $(ECHO) '  Net::SMTP_auth: 0' >> META_new.yml
 	$(NOECHO) $(ECHO) '  Test::More: 0' >> META_new.yml
-	$(NOECHO) $(ECHO) 'version: 0.83' >> META_new.yml
+	$(NOECHO) $(ECHO) 'version: 0.84' >> META_new.yml
 	-$(NOECHO) $(MV) META_new.yml $(DISTVNAME)/META.yml
 	$(NOECHO) $(ECHO) Generating META.json
 	$(NOECHO) $(ECHO) '{' > META_new.json
@@ -543,6 +544,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '      },' >> META_new.json
 	$(NOECHO) $(ECHO) '      "runtime" : {' >> META_new.json
 	$(NOECHO) $(ECHO) '         "requires" : {' >> META_new.json
+	$(NOECHO) $(ECHO) '            "Email::Date::Format" : 0,' >> META_new.json
 	$(NOECHO) $(ECHO) '            "File::Spec" : 0,' >> META_new.json
 	$(NOECHO) $(ECHO) '            "LWP::MediaTypes" : 0,' >> META_new.json
 	$(NOECHO) $(ECHO) '            "MIME::Base64" : 0,' >> META_new.json
@@ -554,7 +556,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '      }' >> META_new.json
 	$(NOECHO) $(ECHO) '   },' >> META_new.json
 	$(NOECHO) $(ECHO) '   "release_status" : "stable",' >> META_new.json
-	$(NOECHO) $(ECHO) '   "version" : "0.83"' >> META_new.json
+	$(NOECHO) $(ECHO) '   "version" : "0.84"' >> META_new.json
 	$(NOECHO) $(ECHO) '}' >> META_new.json
 	-$(NOECHO) $(MV) META_new.json $(DISTVNAME)/META.json
 
@@ -850,10 +852,11 @@ testdb_static :: testdb_dynamic
 # --- MakeMaker ppd section:
 # Creates a PPD (Perl Package Description) for a binary distribution.
 ppd :
-	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="0.83">' > $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="0.84">' > $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <ABSTRACT>Sends emails with attachments supporting Auth over TLS or SSL (for example: Google'\''s SMTP).</ABSTRACT>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR>Juan José '\''Peco'\'' San Martín &lt;peco@cpan.org&gt;</AUTHOR>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Email::Date::Format" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="File::Spec" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="LWP::MediaTypes" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="MIME::Base64" />' >> $(DISTNAME).ppd
