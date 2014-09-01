@@ -206,7 +206,8 @@ sub send
   $mail->{to}=$properties{'-to'} if defined $properties{'-to'};
   if($mail->{to} eq ''){
       print "No RCPT found. Please add the TO field\n";
-      return -1;
+      $self->{error}='"No RCPT found. Please add the TO field';
+      return -1,$self->{error};
   }
 
   $mail->{from}=$self->{from};
@@ -395,8 +396,12 @@ sub send
           return 1;
       }
       else{
+          my $error_string=$self->{sender}->message();
+          chomp $error_string;
+          $self->{error}=$error_string;
+
           print "Sorry, there was an error during sending. Please, retry or use Debug\n" if $verbose;
-          return -1;
+          return -1,$self->{error};
       }
 
 }
@@ -415,9 +420,11 @@ Email::Send::SMTP::Gmail - Sends emails with attachments supporting Auth over TL
 
    use Email::Send::SMTP::Gmail;
 
-   my $mail=Email::Send::SMTP::Gmail->new( -smtp=>'smtp.gmail.com',
-                                           -login=>'whateveraddress@gmail.com',
-                                           -pass=>'whatever_pass');
+   my ($mail,$error)=Email::Send::SMTP::Gmail->new( -smtp=>'smtp.gmail.com',
+                                                    -login=>'whateveraddress@gmail.com',
+                                                    -pass=>'whatever_pass');
+
+   print "session error: $error" unless ($email!=-1);
 
    $mail->send(-to=>'target@xxx.com', -subject=>'Hello!', -body=>'Just testing it',
                -attachments=>'full_path_to_file');
@@ -443,6 +450,8 @@ It creates the object and opens a session with the SMTP.
 =item I<layer>: defines the secure layer to use. It could be 'tls', 'ssl' or 'none'. Default value: tls
 
 =item I<port>: defines the port to use. Default values are 25 for tls and 465 for ssl
+
+=item I<timeout>: defined Timeout for the connection. Default is 60 secs
 
 =item I<auth>: defines the authentication method: ANONYMOUS, CRAM-MD5, DIGEST-MD5, EXTERNAL, GSSAPI, LOGIN (default) and PLAIN. It's currently based on SASL::Perl module
 
@@ -483,6 +492,14 @@ Closes the SMTP session
 
 =back
 
+=over
+
+=item banner
+
+Returns SMTP banner
+
+=back
+
 =head1 Examples
 
 Examples
@@ -494,9 +511,11 @@ Send email composed in HTML using Gmail
       use strict;
       use warnings;
       use Email::Send::SMTP::Gmail;
-      my $mail=Email::Send::SMTP::Gmail->new( -smtp=>'smtp.gmail.com',
-                                              -login=>'whateveraddress@gmail.com',
-                                              -pass=>'whatever_pass');
+      my ($mail,$error)=Email::Send::SMTP::Gmail->new( -smtp=>'smtp.gmail.com',
+                                                       -login=>'whateveraddress@gmail.com',
+                                                       -pass=>'whatever_pass');
+
+      print "session error: $error" unless ($email!=-1);
 
       $mail->send(-to=>'target@xxx.com', -subject=>'Hello!',
                   -body=>'Just testing it<br>Bye!',-contenttype=>'text/html');
