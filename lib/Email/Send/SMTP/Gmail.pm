@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='0.87';
+$VERSION='0.88';
 require Net::SMTPS;
 require Net::SMTP;
 use MIME::Base64;
@@ -61,7 +61,6 @@ sub _initsmtp{
   my $timeout=shift;
 
   # The module sets the SMTP google but could use another!
-  print "Connecting to $smtp using $layer with $auth and timeout of $timeout\n" if $debug;
   # Set port if default
   if($port eq 'default'){
       if($layer eq 'ssl'){
@@ -71,7 +70,7 @@ sub _initsmtp{
           $port=25;
       }
   }
-
+ print "Connecting to $smtp using $layer with $auth on port $port and timeout of $timeout\n" if $debug;
   # Set security layer from $layer
   if($layer eq 'none')
   {
@@ -80,6 +79,7 @@ sub _initsmtp{
       chomp $error_string;
       $self->{error}=$error_string;
       print "Could not connect to SMTP server ($smtp $port)\n" if $debug;
+      return $self;
       #return -1;
     }
   }
@@ -88,10 +88,12 @@ sub _initsmtp{
     if($layer eq 'tls'){$sec='starttls';}
     elsif($layer eq 'ssl'){$sec='ssl';}
     if (not $self->{sender} = Net::SMTPS->new($smtp, Port =>$port, doSSL=>$sec, Debug=>$debug, SSL_verify_mode=>$ssl_mode, SSL_ca_file=>$ssl_ca,SSL_ca_path=>$ssl_path, Timeout=>$timeout)){
-      my $error_string=$self->{sender}->message();
-      chomp $error_string;
-      $self->{error}=$error_string;
+      #my $error_string=$self->{sender}->message();
+      #chomp $error_string;
+      # $self->{error}=$error_string;
+      $self->{error}=$@;
       print "Could not connect to SMTP server\n" if $debug;
+      return $self;
       #return -1;
     }
   }
