@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='0.88';
+$VERSION='0.94';
 require Net::SMTPS;
 require Net::SMTP;
 use MIME::Base64;
@@ -303,34 +303,47 @@ sub send
            $attach=~s/\A[\s,\0,\t,\n,\r]*//;
            $attach=~s/[\s,\0,\t,\n,\r]*\Z//;
 
-           my $opened=open(my $file,'<',$attach);
-           binmode($file);
-           while (($bytesread = sysread($file, $buffer, 1024)) == 1024) {
-             $total += $bytesread;
-             $data .= $buffer;
-           }
-           if ($bytesread) {
-              $data .= $buffer;
-              $total += $bytesread;
-           }
-           close $file;
+           #my $opened=open(my $file,'<',$attach);
+           #binmode($file);
+           #while (($bytesread = sysread($file, $buffer, 1024)) == 1024) {
+           #  $total += $bytesread;
+           #  $data .= $buffer;
+           #}
+           #if ($bytesread) {
+           #   $data .= $buffer;
+           #   $total += $bytesread;
+           #}
+           #close $file;
            # Get the file name without its directory
            my ($volume, $dir, $fileName) = File::Spec->splitpath($attach);
            # Get the MIME type
            my $contentType = guess_media_type($attach);
            print "Composing MIME with attach $attach\n" if $verbose;
-           if ($data) {
+           #if ($data) {
               $self->{sender}->datasend("--$boundary\n");
               $self->{sender}->datasend("Content-Type: $contentType; name=\"$fileName\"\n");
               $self->{sender}->datasend("Content-Transfer-Encoding: base64\n");
               $self->{sender}->datasend("Content-Disposition: attachment; =filename=\"$fileName\"\n\n");
-              $self->{sender}->datasend(encode_base64($data));
-              $self->{sender}->datasend("--$boundary\n");
-           }
+
+              my $opened=open(my $file,'<',$attach);
+              binmode($file);
+              while (($bytesread = sysread($file, $buffer, 1024)) == 1024) {
+                  #$total += $bytesread;
+                  #$data .= $buffer;
+                  $self->{sender}->datasend(encode_base64($buffer));
+             }
+             if ($bytesread) {
+                  $self->{sender}->datasend(encode_base64($buffer));
+                  #$data .= $buffer;
+                  #$total += $bytesread;
+             }
+             close $file;
+             # $self->{sender}->datasend(encode_base64($data));
+             $self->{sender}->datasend("--$boundary\n");
+            #}
           }
           $self->{sender}->datasend("\n--$boundary--\n"); # send endboundary end message
       }
-
       elsif(defined $mail->{attachmentlist})
       {
         print "With Attachments\n" if $verbose;
@@ -352,30 +365,27 @@ sub send
            $attach->{file}=~s/\A[\s,\0,\t,\n,\r]*//;
            $attach->{file}=~s/[\s,\0,\t,\n,\r]*\Z//;
 
-           my $opened=open(my $file,'<',$attach->{file});
-           binmode($file);
-           while (($bytesread = sysread($file, $buffer, 1024)) == 1024) {
-             $total += $bytesread;
-             $data .= $buffer;
-           }
-           if ($bytesread) {
-              $data .= $buffer;
-              $total += $bytesread;
-           }
-           close $file;
-           # Get the file name without its directory
            my ($volume, $dir, $fileName) = File::Spec->splitpath($attach->{file});
            # Get the MIME type
            my $contentType = guess_media_type($attach->{file});
            print "Composing MIME with attach $attach->{file}\n" if $verbose;
-           if ($data) {
+           #if ($data) {
               $self->{sender}->datasend("--$boundary\n");
               $self->{sender}->datasend("Content-Type: $contentType; name=\"$fileName\"\n");
               $self->{sender}->datasend("Content-Transfer-Encoding: base64\n");
               $self->{sender}->datasend("Content-Disposition: attachment; =filename=\"$fileName\"\n\n");
-              $self->{sender}->datasend(encode_base64($data));
+
+              my $opened=open(my $file,'<',$attach->{file});
+              binmode($file);
+              while (($bytesread = sysread($file, $buffer, 1024)) == 1024) {
+                $self->{sender}->datasend(encode_base64($buffer));
+              }
+              if ($bytesread) {
+                $self->{sender}->datasend(encode_base64($buffer));
+              }
+              close $file;
               $self->{sender}->datasend("--$boundary\n");
-           }
+            #}
           }
           $self->{sender}->datasend("\n--$boundary--\n"); # send endboundary end message
       }

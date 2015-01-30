@@ -18,7 +18,7 @@
 #     LICENSE => q[perl]
 #     NAME => q[Email::Send::SMTP::Gmail]
 #     PL_FILES => {  }
-#     PREREQ_PM => { File::Spec=>q[0], LWP::MediaTypes=>q[0], Net::SMTP=>q[0], Test::More=>q[0], Email::Date::Format=>q[0], MIME::Base64=>q[0], Net::SMTP_auth=>q[0], Net::SMTPS=>q[0] }
+#     PREREQ_PM => { LWP::MediaTypes=>q[0], Net::SMTP_auth=>q[0], Test::More=>q[0], Email::Date::Format=>q[0], Net::SMTPS=>q[0], Net::SMTP=>q[0], File::Spec=>q[0], MIME::Base64=>q[0] }
 #     TEST_REQUIRES => {  }
 #     VERSION_FROM => q[lib/Email/Send/SMTP/Gmail.pm]
 #     clean => { FILES=>q[Email-Send-SMTP-Gmail-*] }
@@ -62,11 +62,11 @@ DIRFILESEP = /
 DFSEP = $(DIRFILESEP)
 NAME = Email::Send::SMTP::Gmail
 NAME_SYM = Email_Send_SMTP_Gmail
-VERSION = 0.87
+VERSION = 0.88
 VERSION_MACRO = VERSION
-VERSION_SYM = 0_87
+VERSION_SYM = 0_88
 DEFINE_VERSION = -D$(VERSION_MACRO)=\"$(VERSION)\"
-XS_VERSION = 0.87
+XS_VERSION = 0.88
 XS_VERSION_MACRO = XS_VERSION
 XS_DEFINE_VERSION = -D$(XS_VERSION_MACRO)=\"$(XS_VERSION)\"
 INST_ARCHLIB = blib/arch
@@ -260,7 +260,7 @@ RCS_LABEL = rcs -Nv$(VERSION_SYM): -q
 DIST_CP = best
 DIST_DEFAULT = tardist
 DISTNAME = Email-Send-SMTP-Gmail
-DISTVNAME = Email-Send-SMTP-Gmail-0.87
+DISTVNAME = Email-Send-SMTP-Gmail-0.88
 
 
 # --- MakeMaker macro section:
@@ -443,24 +443,24 @@ clean_subdirs :
 
 clean :: clean_subdirs
 	- $(RM_F) \
-	  core.*perl.*.? blibdirs.ts \
+	  perlmain.c pm_to_blib \
+	  MYMETA.json perl.exe \
+	  pm_to_blib.ts *$(LIB_EXT) \
 	  core.[0-9][0-9][0-9] *$(OBJ_EXT) \
-	  $(INST_ARCHAUTODIR)/extralibs.all perlmain.c \
-	  *perl.core mon.out \
-	  $(BASEEXT).def MYMETA.json \
-	  $(BOOTSTRAP) $(BASEEXT).x \
-	  core.[0-9][0-9][0-9][0-9][0-9] pm_to_blib.ts \
-	  pm_to_blib $(MAKE_APERL_FILE) \
-	  $(INST_ARCHAUTODIR)/extralibs.ld MYMETA.yml \
-	  lib$(BASEEXT).def core \
-	  $(BASEEXT).bso so_locations \
-	  perl$(EXE_EXT) perl \
-	  *$(LIB_EXT) core.[0-9] \
-	  core.[0-9][0-9] perl.exe \
-	  core.[0-9][0-9][0-9][0-9] tmon.out \
-	  $(BASEEXT).exp 
+	  perl$(EXE_EXT) so_locations \
+	  blibdirs.ts core.[0-9][0-9][0-9][0-9] \
+	  $(INST_ARCHAUTODIR)/extralibs.all core \
+	  $(INST_ARCHAUTODIR)/extralibs.ld core.[0-9] \
+	  core.*perl.*.? $(BASEEXT).exp \
+	  core.[0-9][0-9][0-9][0-9][0-9] tmon.out \
+	  lib$(BASEEXT).def mon.out \
+	  *perl.core $(BASEEXT).def \
+	  $(BASEEXT).bso $(BASEEXT).x \
+	  perl $(MAKE_APERL_FILE) \
+	  $(BOOTSTRAP) core.[0-9][0-9] \
+	  MYMETA.yml 
 	- $(RM_RF) \
-	  blib Email-Send-SMTP-Gmail-* 
+	  Email-Send-SMTP-Gmail-* blib 
 	- $(MV) $(FIRST_MAKEFILE) $(MAKEFILE_OLD) $(DEV_NULL)
 
 
@@ -473,7 +473,7 @@ realclean_subdirs :
 # Delete temporary files (via clean) and also delete dist files
 realclean purge ::  clean realclean_subdirs
 	- $(RM_F) \
-	  $(FIRST_MAKEFILE) $(MAKEFILE_OLD) 
+	  $(MAKEFILE_OLD) $(FIRST_MAKEFILE) 
 	- $(RM_RF) \
 	  $(DISTVNAME) 
 
@@ -509,7 +509,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '  Net::SMTPS: 0' >> META_new.yml
 	$(NOECHO) $(ECHO) '  Net::SMTP_auth: 0' >> META_new.yml
 	$(NOECHO) $(ECHO) '  Test::More: 0' >> META_new.yml
-	$(NOECHO) $(ECHO) 'version: 0.87' >> META_new.yml
+	$(NOECHO) $(ECHO) 'version: 0.88' >> META_new.yml
 	-$(NOECHO) $(MV) META_new.yml $(DISTVNAME)/META.yml
 	$(NOECHO) $(ECHO) Generating META.json
 	$(NOECHO) $(ECHO) '{' > META_new.json
@@ -558,7 +558,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '      }' >> META_new.json
 	$(NOECHO) $(ECHO) '   },' >> META_new.json
 	$(NOECHO) $(ECHO) '   "release_status" : "stable",' >> META_new.json
-	$(NOECHO) $(ECHO) '   "version" : "0.87"' >> META_new.json
+	$(NOECHO) $(ECHO) '   "version" : "0.88"' >> META_new.json
 	$(NOECHO) $(ECHO) '}' >> META_new.json
 	-$(NOECHO) $(MV) META_new.json $(DISTVNAME)/META.json
 
