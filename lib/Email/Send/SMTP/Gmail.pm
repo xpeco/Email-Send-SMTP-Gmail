@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='0.94';
+$VERSION='0.96';
 require Net::SMTPS;
 require Net::SMTP;
 use MIME::Base64;
@@ -298,51 +298,39 @@ sub send
 
         foreach my $attach(@attachments)
         {
-           my($bytesread, $buffer, $data, $total);
+            #my($bytesread, $buffer, $data, $total);
 
            $attach=~s/\A[\s,\0,\t,\n,\r]*//;
            $attach=~s/[\s,\0,\t,\n,\r]*\Z//;
 
-           #my $opened=open(my $file,'<',$attach);
-           #binmode($file);
-           #while (($bytesread = sysread($file, $buffer, 1024)) == 1024) {
-           #  $total += $bytesread;
-           #  $data .= $buffer;
-           #}
-           #if ($bytesread) {
-           #   $data .= $buffer;
-           #   $total += $bytesread;
-           #}
-           #close $file;
            # Get the file name without its directory
            my ($volume, $dir, $fileName) = File::Spec->splitpath($attach);
            # Get the MIME type
            my $contentType = guess_media_type($attach);
            print "Composing MIME with attach $attach\n" if $verbose;
-           #if ($data) {
-              $self->{sender}->datasend("--$boundary\n");
-              $self->{sender}->datasend("Content-Type: $contentType; name=\"$fileName\"\n");
-              $self->{sender}->datasend("Content-Transfer-Encoding: base64\n");
-              $self->{sender}->datasend("Content-Disposition: attachment; =filename=\"$fileName\"\n\n");
+           
+           $self->{sender}->datasend("--$boundary\n");
+           $self->{sender}->datasend("Content-Type: $contentType; name=\"$fileName\"\n");
+           $self->{sender}->datasend("Content-Transfer-Encoding: base64\n");
+           $self->{sender}->datasend("Content-Disposition: attachment; =filename=\"$fileName\"\n\n");
 
-              my $opened=open(my $file,'<',$attach);
-              binmode($file);
-              while (($bytesread = sysread($file, $buffer, 1024)) == 1024) {
-                  #$total += $bytesread;
-                  #$data .= $buffer;
-                  $self->{sender}->datasend(encode_base64($buffer));
-             }
-             if ($bytesread) {
-                  $self->{sender}->datasend(encode_base64($buffer));
-                  #$data .= $buffer;
-                  #$total += $bytesread;
-             }
-             close $file;
-             # $self->{sender}->datasend(encode_base64($data));
-             $self->{sender}->datasend("--$boundary\n");
-            #}
-          }
-          $self->{sender}->datasend("\n--$boundary--\n"); # send endboundary end message
+           # Google requires us to divide the attachment
+           # First read -> Encode -> Send in chunks of 76
+           # Read
+           my $opened=open(my $file,'<',$attach);
+           binmode($file);
+           # Encode
+           local $/ = undef;
+           my $d=<$file>;
+           my $str=encode_base64($d);
+           # Chunks by 76
+           my @groups = split(/(.{76})/,$str);
+           $self->{sender}->datasend($_) foreach @groups;
+           close $file;
+
+           $self->{sender}->datasend("--$boundary\n");
+         }
+         $self->{sender}->datasend("\n--$boundary--\n"); # send endboundary end message
       }
       elsif(defined $mail->{attachmentlist})
       {
@@ -360,7 +348,7 @@ sub send
         my $attachments=$mail->{attachmentlist};
         foreach my $attach(@$attachments)
         {
-           my($bytesread, $buffer, $data, $total);
+            #my($bytesread, $buffer, $data, $total);
 
            $attach->{file}=~s/\A[\s,\0,\t,\n,\r]*//;
            $attach->{file}=~s/[\s,\0,\t,\n,\r]*\Z//;
@@ -369,27 +357,30 @@ sub send
            # Get the MIME type
            my $contentType = guess_media_type($attach->{file});
            print "Composing MIME with attach $attach->{file}\n" if $verbose;
-           #if ($data) {
-              $self->{sender}->datasend("--$boundary\n");
-              $self->{sender}->datasend("Content-Type: $contentType; name=\"$fileName\"\n");
-              $self->{sender}->datasend("Content-Transfer-Encoding: base64\n");
-              $self->{sender}->datasend("Content-Disposition: attachment; =filename=\"$fileName\"\n\n");
+              
+           $self->{sender}->datasend("--$boundary\n");
+           $self->{sender}->datasend("Content-Type: $contentType; name=\"$fileName\"\n");
+           $self->{sender}->datasend("Content-Transfer-Encoding: base64\n");
+           $self->{sender}->datasend("Content-Disposition: attachment; =filename=\"$fileName\"\n\n");
 
-              my $opened=open(my $file,'<',$attach->{file});
-              binmode($file);
-              while (($bytesread = sysread($file, $buffer, 1024)) == 1024) {
-                $self->{sender}->datasend(encode_base64($buffer));
-              }
-              if ($bytesread) {
-                $self->{sender}->datasend(encode_base64($buffer));
-              }
-              close $file;
-              $self->{sender}->datasend("--$boundary\n");
-            #}
-          }
-          $self->{sender}->datasend("\n--$boundary--\n"); # send endboundary end message
+           # Google requires us to divide the attachment
+           # First read -> Encode -> Send in chunks of 76
+           # Read
+           my $opened=open(my $file,'<',$attach->{file});
+           binmode($file);
+           # Encode
+           local $/ = undef;
+           my $d=<$file>;
+           my $str=encode_base64($d);
+           # Chunks by 76
+           my @groups = split(/(.{76})/,$str);
+           $self->{sender}->datasend($_) foreach @groups;
+           close $file;
+
+           $self->{sender}->datasend("--$boundary\n");
+        }
+        $self->{sender}->datasend("\n--$boundary--\n"); # send endboundary end message
       }
-
       else { # No attachment
         print "With No attachments\n" if $verbose;
         # Send text body
