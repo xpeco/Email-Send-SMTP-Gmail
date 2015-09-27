@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='0.96';
+$VERSION='0.99';
 require Net::SMTPS;
 require Net::SMTP;
 use MIME::Base64;
@@ -285,14 +285,26 @@ sub send
       {
         print "With Attachments\n" if $verbose;
         $self->{sender}->datasend("MIME-Version: 1.0\n");
-        $self->{sender}->datasend("Content-Type: multipart/mixed; BOUNDARY=\"$boundary\"\n");
+        if ((defined $properties{'-disposition'}) and ('inline' eq lc($properties{'-disposition'}))) {
+            $self->{sender}->datasend("Content-Type: multipart/related; BOUNDARY=\"$boundary\"\n");
+        }
+        else {
+           $self->{sender}->datasend("Content-Type: multipart/mixed; BOUNDARY=\"$boundary\"\n");
+       }
+
+#        $self->{sender}->datasend("Content-Type: multipart/mixed; BOUNDARY=\"$boundary\"\n");
 
         # Send text body
         $self->{sender}->datasend("\n--$boundary\n");
         $self->{sender}->datasend("Content-Type: ".$mail->{contenttype}."; charset=".$mail->{charset}."\n");
 
         $self->{sender}->datasend("\n");
-        $self->{sender}->datasend($mail->{body} . "\n\n");
+
+        # Chunk body in sections (Gmail SMTP limitations)
+        #$self->{sender}->datasend($mail->{body} . "\n\n");
+        my @groups_body = split(/(.{76})/,$mail->{body});
+        $self->{sender}->datasend($_) foreach @groups_body;
+        $self->{sender}->datasend("\n\n");
 
         my @attachments=split(/,/,$mail->{attachments});
 
@@ -308,11 +320,18 @@ sub send
            # Get the MIME type
            my $contentType = guess_media_type($attach);
            print "Composing MIME with attach $attach\n" if $verbose;
-           
+
            $self->{sender}->datasend("--$boundary\n");
            $self->{sender}->datasend("Content-Type: $contentType; name=\"$fileName\"\n");
            $self->{sender}->datasend("Content-Transfer-Encoding: base64\n");
-           $self->{sender}->datasend("Content-Disposition: attachment; =filename=\"$fileName\"\n\n");
+           if ((defined $properties{'-disposition'}) and ('inline' eq lc($properties{'-disposition'}))) {
+              $self->{sender}->datasend("Content-ID: <$fileName>\n");
+              $self->{sender}->datasend("Content-Disposition: inline; =filename=\"$fileName\"\n\n");
+           }
+           else {
+             $self->{sender}->datasend("Content-Disposition: attachment; =filename=\"$fileName\"\n\n");
+           }
+#           $self->{sender}->datasend("Content-Disposition: attachment; =filename=\"$fileName\"\n\n");
 
            # Google requires us to divide the attachment
            # First read -> Encode -> Send in chunks of 76
@@ -343,7 +362,10 @@ sub send
         $self->{sender}->datasend("Content-Type: ".$mail->{contenttype}."; charset=".$mail->{charset}."\n");
 
         $self->{sender}->datasend("\n");
-        $self->{sender}->datasend($mail->{body} . "\n\n");
+        # Chunk body in sections (Gmail SMTP limitations)
+        #$self->{sender}->datasend($mail->{body} . "\n\n");
+        my @groups_body = split(/(.{76})/,$mail->{body});
+        $self->{sender}->datasend($_) foreach @groups_body;
 
         my $attachments=$mail->{attachmentlist};
         foreach my $attach(@$attachments)
@@ -357,11 +379,18 @@ sub send
            # Get the MIME type
            my $contentType = guess_media_type($attach->{file});
            print "Composing MIME with attach $attach->{file}\n" if $verbose;
-              
+
            $self->{sender}->datasend("--$boundary\n");
            $self->{sender}->datasend("Content-Type: $contentType; name=\"$fileName\"\n");
            $self->{sender}->datasend("Content-Transfer-Encoding: base64\n");
-           $self->{sender}->datasend("Content-Disposition: attachment; =filename=\"$fileName\"\n\n");
+           if ((defined $properties{'-disposition'}) and ('inline' eq lc($properties{'-disposition'}))) {
+              $self->{sender}->datasend("Content-ID: <$fileName>\n");
+              $self->{sender}->datasend("Content-Disposition: inline; =filename=\"$fileName\"\n\n");
+           }
+           else {
+             $self->{sender}->datasend("Content-Disposition: attachment; =filename=\"$fileName\"\n\n");
+           }
+           # $self->{sender}->datasend("Content-Disposition: attachment; =filename=\"$fileName\"\n\n");
 
            # Google requires us to divide the attachment
            # First read -> Encode -> Send in chunks of 76
@@ -388,8 +417,10 @@ sub send
         $self->{sender}->datasend("Content-Type: ".$mail->{contenttype}."; charset=".$mail->{charset}."\n");
 
         $self->{sender}->datasend("\n");
-        $self->{sender}->datasend($mail->{body}."\n\n");
-
+        # Chunk body in sections (Gmail SMTP limitations)
+        #$self->{sender}->datasend($mail->{body} . "\n\n");
+        my @groups_body = split(/(.{76})/,$mail->{body});
+        $self->{sender}->datasend($_) foreach @groups_body;
       }
 
       $self->{sender}->datasend("\n");
@@ -472,7 +503,7 @@ Also supports SSL parameters as:
 
 =back
 
-=item send(-from=>'', -to=>'', [-subject=>'', -cc=>'', -bcc=>'', -replyto=>'', -charset=>'', -body=>'', -attachments=>'', -verbose=>'1'])
+=item send(-from=>'', -to=>'', [-subject=>'', -cc=>'', -bcc=>'', -replyto=>'', -charset=>'', -body=>'', -attachments=>'', disposition=>'', -verbose=>'1'])
 
 It composes and sends the email in one shot
 
@@ -481,6 +512,8 @@ It composes and sends the email in one shot
 =item I<to, cc, bcc>: comma separated email addresses
 
 =item I<contenttype>: Content-Type for the body message. Examples are: text/plain (default), text/html, etc.
+
+=item I<disposition>: Set "inline" in sending embeeded attachments. For example using <body><img src="cid:logo.png"><br>Test with Image</body>
 
 =item I<attachments>: comma separated files with full path
 
@@ -616,9 +649,11 @@ Flaviano Tresoldi, C<< <info at swwork.it> >>
 
 Narcyz Knap, C<< <narcyz at gumed.edu.pl> >>
 
+Devin Ceartas, C<< <devin@nacredata.com> >>
+
 =head1 COPYRIGHT
 
-Copyright 2014 Microbotica
+Copyright 2015 Microbotica
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
