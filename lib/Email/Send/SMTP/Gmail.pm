@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='0.99';
+$VERSION='1.01';
 require Net::SMTPS;
 require Net::SMTP;
 use MIME::Base64;
@@ -286,7 +286,7 @@ sub send
         print "With Attachments\n" if $verbose;
         $self->{sender}->datasend("MIME-Version: 1.0\n");
         if ((defined $properties{'-disposition'}) and ('inline' eq lc($properties{'-disposition'}))) {
-            $self->{sender}->datasend("Content-Type: multipart/related; BOUNDARY=\"$boundary\"\n");
+           $self->{sender}->datasend("Content-Type: multipart/related; BOUNDARY=\"$boundary\"\n");
         }
         else {
            $self->{sender}->datasend("Content-Type: multipart/mixed; BOUNDARY=\"$boundary\"\n");
@@ -347,7 +347,7 @@ sub send
            $self->{sender}->datasend($_) foreach @groups;
            close $file;
 
-           $self->{sender}->datasend("--$boundary\n");
+           #$self->{sender}->datasend("--$boundary\n"); # avoid dummy attachment
          }
          $self->{sender}->datasend("\n--$boundary--\n"); # send endboundary end message
       }
@@ -355,17 +355,25 @@ sub send
       {
         print "With Attachments\n" if $verbose;
         $self->{sender}->datasend("MIME-Version: 1.0\n");
-        $self->{sender}->datasend("Content-Type: multipart/mixed; BOUNDARY=\"$boundary\"\n");
+        #  $self->{sender}->datasend("Content-Type: multipart/mixed; BOUNDARY=\"$boundary\"\n");
+        if ((defined $properties{'-disposition'}) and ('inline' eq lc($properties{'-disposition'}))) {
+            $self->{sender}->datasend("Content-Type: multipart/related; BOUNDARY=\"$boundary\"\n");
+        }
+        else {
+           $self->{sender}->datasend("Content-Type: multipart/mixed; BOUNDARY=\"$boundary\"\n");
+       }
 
         # Send text body
         $self->{sender}->datasend("\n--$boundary\n");
         $self->{sender}->datasend("Content-Type: ".$mail->{contenttype}."; charset=".$mail->{charset}."\n");
 
         $self->{sender}->datasend("\n");
+
         # Chunk body in sections (Gmail SMTP limitations)
         #$self->{sender}->datasend($mail->{body} . "\n\n");
         my @groups_body = split(/(.{76})/,$mail->{body});
         $self->{sender}->datasend($_) foreach @groups_body;
+        $self->{sender}->datasend("\n\n");
 
         my $attachments=$mail->{attachmentlist};
         foreach my $attach(@$attachments)
@@ -406,7 +414,7 @@ sub send
            $self->{sender}->datasend($_) foreach @groups;
            close $file;
 
-           $self->{sender}->datasend("--$boundary\n");
+           #$self->{sender}->datasend("--$boundary\n"); # to avoid noname.txt dummy attachment
         }
         $self->{sender}->datasend("\n--$boundary--\n"); # send endboundary end message
       }

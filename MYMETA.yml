@@ -26,4 +26,4 @@ requires:
   Net::SMTPS: 0
   Net::SMTP_auth: 0
   Test::More: 0
-version: 0.96
+version: 1.01
