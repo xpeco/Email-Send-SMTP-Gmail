@@ -1,5 +1,7 @@
 Revision history for Email-Send-SMTP-Gmail
 
+See github
+
 0.40    2013/02/11
         Due to lack of response from Net::SMTP::SSL, we added TLS support using Net::SMTP::TLS::ButMaintained
 0.33    2013/01/24

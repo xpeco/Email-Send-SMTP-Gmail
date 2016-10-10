@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='1.01';
+$VERSION='1.02';
 require Net::SMTPS;
 require Net::SMTP;
 use MIME::Base64;
@@ -22,6 +22,7 @@ sub new{
   my $layer='tls'; # Default value
   my $auth='LOGIN'; # Default
   my $ssl_verify_mode=''; #Default - Warning SSL_VERIFY_NONE
+  my $ssl_version='';
   my $timeout=60;
 
   $smtp=$properties{'-smtp'} if defined $properties{'-smtp'};
@@ -29,6 +30,7 @@ sub new{
   $layer=$properties{'-layer'} if defined $properties{'-layer'};
   $auth=$properties{'-auth'} if defined $properties{'-auth'};
   $ssl_verify_mode=$properties{'-ssl_verify_mode'} if defined $properties{'-ssl_verify_mode'};
+  $ssl_version=$properties{'-ssl_version'} if defined $properties{'-ssl_version'};
   $timeout=$properties{'-timeout'} if defined $properties{'-timeout'};
 
   if(defined $properties{'-from'}){
@@ -38,7 +40,7 @@ sub new{
     $self->{from}=$properties{'-login'};
   }
 
-  my $connect=$self->_initsmtp($smtp,$port,$properties{'-login'},$properties{'-pass'},$layer,$auth,$properties{'-debug'},$ssl_verify_mode,$properties{'-ssl_verify_path'},$properties{'-$ssl_verify_ca'},$timeout);
+  my $connect=$self->_initsmtp($smtp,$port,$properties{'-login'},$properties{'-pass'},$layer,$auth,$properties{'-debug'},$ssl_verify_mode,$ssl_version,$properties{'-ssl_verify_path'},$properties{'-$ssl_verify_ca'},$timeout);
 
   return -1,$self->{error} if(defined $self->{error});
 #  return $connect if($connect==-1);
@@ -56,6 +58,7 @@ sub _initsmtp{
   my $auth=shift;
   my $debug=shift;
   my $ssl_mode=shift;
+  my $ssl_version=shift;
   my $ssl_path=shift;
   my $ssl_ca=shift;
   my $timeout=shift;
@@ -87,7 +90,7 @@ sub _initsmtp{
     my $sec=undef;
     if($layer eq 'tls'){$sec='starttls';}
     elsif($layer eq 'ssl'){$sec='ssl';}
-    if (not $self->{sender} = Net::SMTPS->new($smtp, Port =>$port, doSSL=>$sec, Debug=>$debug, SSL_verify_mode=>$ssl_mode, SSL_ca_file=>$ssl_ca,SSL_ca_path=>$ssl_path, Timeout=>$timeout)){
+    if (not $self->{sender} = Net::SMTPS->new($smtp, Port =>$port, doSSL=>$sec, Debug=>$debug, SSL_verify_mode=>$ssl_mode, SSL_version=>$ssl_version,SSL_ca_file=>$ssl_ca,SSL_ca_path=>$ssl_path, Timeout=>$timeout)){
       #my $error_string=$self->{sender}->message();
       #chomp $error_string;
       # $self->{error}=$error_string;
@@ -502,6 +505,8 @@ It creates the object and opens a session with the SMTP.
 Also supports SSL parameters as:
 
 =item I<ssl_verify_mode>: SSL_VERIFY_NONE | SSL_VERIFY_PEER
+
+=item I<ssl_version>: SSLv23 | ''
 
 =item I<ssl_verify_path>: SSL_ca_path if SSL_VERIFY_PEER
 
