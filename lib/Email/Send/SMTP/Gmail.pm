@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='1.02';
+$VERSION='1.05';
 require Net::SMTPS;
 require Net::SMTP;
 use MIME::Base64;
@@ -207,13 +207,10 @@ sub send
   # Load all the email param
   my $mail;
 
-  $mail->{to}='';
+  
   $mail->{to}=$properties{'-to'} if defined $properties{'-to'};
-  if($mail->{to} eq ''){
-      print "No RCPT found. Please add the TO field\n";
-      $self->{error}='"No RCPT found. Please add the TO field';
-      return -1,$self->{error};
-  }
+
+  $mail->{to}=' ' if($mail->{to} eq '')
 
   $mail->{from}=$self->{from};
   $mail->{from}=$properties{'-from'} if defined $properties{'-from'};
@@ -295,18 +292,26 @@ sub send
            $self->{sender}->datasend("Content-Type: multipart/mixed; BOUNDARY=\"$boundary\"\n");
        }
 
-#        $self->{sender}->datasend("Content-Type: multipart/mixed; BOUNDARY=\"$boundary\"\n");
-
         # Send text body
         $self->{sender}->datasend("\n--$boundary\n");
         $self->{sender}->datasend("Content-Type: ".$mail->{contenttype}."; charset=".$mail->{charset}."\n");
 
         $self->{sender}->datasend("\n");
 
+        #################################################
         # Chunk body in sections (Gmail SMTP limitations)
-        #$self->{sender}->datasend($mail->{body} . "\n\n");
-        my @groups_body = split(/(.{76})/,$mail->{body});
-        $self->{sender}->datasend($_) foreach @groups_body;
+        #my @groups_body = split(/(.{76})/,$mail->{body});
+        #$self->{sender}->datasend($_) foreach @groups_body;
+
+        # Or better. Encode and split
+        #my $str=encode_base64($mail->{body});
+        #my @groups_body = split(/(.{76})/,$str);
+        #$self->{sender}->datasend($_) foreach @groups_body;
+
+        # Limitation removed
+        $self->{sender}->datasend($mail->{body});
+        ##################################################
+
         $self->{sender}->datasend("\n\n");
 
         my @attachments=split(/,/,$mail->{attachments});
@@ -334,7 +339,6 @@ sub send
            else {
              $self->{sender}->datasend("Content-Disposition: attachment; =filename=\"$fileName\"\n\n");
            }
-#           $self->{sender}->datasend("Content-Disposition: attachment; =filename=\"$fileName\"\n\n");
 
            # Google requires us to divide the attachment
            # First read -> Encode -> Send in chunks of 76
