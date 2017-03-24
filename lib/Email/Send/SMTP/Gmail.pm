@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='1.05';
+$VERSION='1.06';
 require Net::SMTPS;
 require Net::SMTP;
 use MIME::Base64;
@@ -210,7 +210,7 @@ sub send
   
   $mail->{to}=$properties{'-to'} if defined $properties{'-to'};
 
-  $mail->{to}=' ' if($mail->{to} eq '')
+  $mail->{to}=' ' if((not defined $mail->{to}) or ($mail->{to} eq ''));
 
   $mail->{from}=$self->{from};
   $mail->{from}=$properties{'-from'} if defined $properties{'-from'};
