@@ -18,7 +18,7 @@
 #     LICENSE => q[perl]
 #     NAME => q[Email::Send::SMTP::Gmail]
 #     PL_FILES => {  }
-#     PREREQ_PM => { Email::Date::Format=>q[0], File::Spec=>q[0], LWP::MediaTypes=>q[0], MIME::Base64=>q[0], Net::SMTP=>q[0], Net::SMTPS=>q[0], Net::SMTP_auth=>q[0], Test::More=>q[0] }
+#     PREREQ_PM => { Email::Date::Format=>q[0], File::Spec=>q[0], LWP::MediaTypes=>q[0], MIME::Base64=>q[0], Net::SMTP=>q[0], Net::SMTP_auth=>q[0], Test::More=>q[0] }
 #     TEST_REQUIRES => {  }
 #     VERSION_FROM => q[lib/Email/Send/SMTP/Gmail.pm]
 #     clean => { FILES=>q[Email-Send-SMTP-Gmail-*] }
@@ -62,11 +62,11 @@ DIRFILESEP = /
 DFSEP = $(DIRFILESEP)
 NAME = Email::Send::SMTP::Gmail
 NAME_SYM = Email_Send_SMTP_Gmail
-VERSION = 1.06
+VERSION = 1.20
 VERSION_MACRO = VERSION
-VERSION_SYM = 1_06
+VERSION_SYM = 1_20
 DEFINE_VERSION = -D$(VERSION_MACRO)=\"$(VERSION)\"
-XS_VERSION = 1.06
+XS_VERSION = 1.20
 XS_VERSION_MACRO = XS_VERSION
 XS_DEFINE_VERSION = -D$(XS_VERSION_MACRO)=\"$(XS_VERSION)\"
 INST_ARCHLIB = blib/arch
@@ -264,7 +264,7 @@ RCS_LABEL = rcs -Nv$(VERSION_SYM): -q
 DIST_CP = best
 DIST_DEFAULT = tardist
 DISTNAME = Email-Send-SMTP-Gmail
-DISTVNAME = Email-Send-SMTP-Gmail-1.06
+DISTVNAME = Email-Send-SMTP-Gmail-1.20
 
 
 # --- MakeMaker macro section:
@@ -511,10 +511,9 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '  LWP::MediaTypes: '\''0'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) '  MIME::Base64: '\''0'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) '  Net::SMTP: '\''0'\''' >> META_new.yml
-	$(NOECHO) $(ECHO) '  Net::SMTPS: '\''0'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) '  Net::SMTP_auth: '\''0'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) '  Test::More: '\''0'\''' >> META_new.yml
-	$(NOECHO) $(ECHO) 'version: '\''1.06'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) 'version: '\''1.20'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) 'x_serialization_backend: '\''CPAN::Meta::YAML version 0.018'\''' >> META_new.yml
 	-$(NOECHO) $(MV) META_new.yml $(DISTVNAME)/META.yml
 	$(NOECHO) $(ECHO) Generating META.json
@@ -557,14 +556,13 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '            "LWP::MediaTypes" : "0",' >> META_new.json
 	$(NOECHO) $(ECHO) '            "MIME::Base64" : "0",' >> META_new.json
 	$(NOECHO) $(ECHO) '            "Net::SMTP" : "0",' >> META_new.json
-	$(NOECHO) $(ECHO) '            "Net::SMTPS" : "0",' >> META_new.json
 	$(NOECHO) $(ECHO) '            "Net::SMTP_auth" : "0",' >> META_new.json
 	$(NOECHO) $(ECHO) '            "Test::More" : "0"' >> META_new.json
 	$(NOECHO) $(ECHO) '         }' >> META_new.json
 	$(NOECHO) $(ECHO) '      }' >> META_new.json
 	$(NOECHO) $(ECHO) '   },' >> META_new.json
 	$(NOECHO) $(ECHO) '   "release_status" : "stable",' >> META_new.json
-	$(NOECHO) $(ECHO) '   "version" : "1.06",' >> META_new.json
+	$(NOECHO) $(ECHO) '   "version" : "1.20",' >> META_new.json
 	$(NOECHO) $(ECHO) '   "x_serialization_backend" : "JSON::PP version 2.27300"' >> META_new.json
 	$(NOECHO) $(ECHO) '}' >> META_new.json
 	-$(NOECHO) $(MV) META_new.json $(DISTVNAME)/META.json
@@ -851,7 +849,6 @@ ppd :
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="LWP::MediaTypes" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="MIME::Base64" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Net::SMTP" />' >> $(DISTNAME).ppd
-	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Net::SMTPS" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Net::SMTP_auth" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Test::More" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <ARCHITECTURE NAME="x86_64-linux-gnu-thread-multi-5.22" />' >> $(DISTNAME).ppd
