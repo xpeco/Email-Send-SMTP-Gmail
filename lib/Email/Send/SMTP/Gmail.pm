@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='1.20';
+$VERSION='1.21';
 require Net::SMTP;
 use MIME::Base64;
 use File::Spec;
