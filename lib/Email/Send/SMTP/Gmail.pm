@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='1.23';
+$VERSION='1.25';
 require Net::SMTP;
 use MIME::Base64;
 use Encode;
@@ -222,7 +222,8 @@ sub send
   $mail->{contenttype}=$properties{'-contenttype'} if defined $properties{'-contenttype'};
 
   $mail->{subject}='';
-#  $mail->{subject}=$properties{'-subject'} if defined $properties{'-subject'};
+  #$mail->{subject}=$properties{'-subject'} if defined $properties{'-subject'};
+  # Encode Subject to accomplish RFC
   $mail->{subject}=encode("MIME-Q",$properties{'-subject'}) if defined $properties{'-subject'};
 
   $mail->{body}='';
