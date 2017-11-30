@@ -18,7 +18,7 @@
 #     LICENSE => q[perl]
 #     NAME => q[Email::Send::SMTP::Gmail]
 #     PL_FILES => {  }
-#     PREREQ_PM => { Email::Date::Format=>q[0], File::Spec=>q[0], LWP::MediaTypes=>q[0], MIME::Base64=>q[0], Net::SMTP=>q[3.1], Net::SMTP_auth=>q[0], Test::More=>q[0] }
+#     PREREQ_PM => { Authen::SASL=>q[0], Email::Date::Format=>q[0], File::Spec=>q[0], LWP::MediaTypes=>q[0], MIME::Base64=>q[0], Net::SMTP=>q[3.1], Net::SMTP_auth=>q[0], Test::More=>q[0] }
 #     TEST_REQUIRES => {  }
 #     VERSION_FROM => q[lib/Email/Send/SMTP/Gmail.pm]
 #     clean => { FILES=>q[Email-Send-SMTP-Gmail-*] }
@@ -62,11 +62,11 @@ DIRFILESEP = /
 DFSEP = $(DIRFILESEP)
 NAME = Email::Send::SMTP::Gmail
 NAME_SYM = Email_Send_SMTP_Gmail
-VERSION = 1.23
+VERSION = 1.30
 VERSION_MACRO = VERSION
-VERSION_SYM = 1_23
+VERSION_SYM = 1_30
 DEFINE_VERSION = -D$(VERSION_MACRO)=\"$(VERSION)\"
-XS_VERSION = 1.23
+XS_VERSION = 1.30
 XS_VERSION_MACRO = XS_VERSION
 XS_DEFINE_VERSION = -D$(XS_VERSION_MACRO)=\"$(XS_VERSION)\"
 INST_ARCHLIB = blib/arch
@@ -264,7 +264,7 @@ RCS_LABEL = rcs -Nv$(VERSION_SYM): -q
 DIST_CP = best
 DIST_DEFAULT = tardist
 DISTNAME = Email-Send-SMTP-Gmail
-DISTVNAME = Email-Send-SMTP-Gmail-1.23
+DISTVNAME = Email-Send-SMTP-Gmail-1.30
 
 
 # --- MakeMaker macro section:
@@ -506,6 +506,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '    - t' >> META_new.yml
 	$(NOECHO) $(ECHO) '    - inc' >> META_new.yml
 	$(NOECHO) $(ECHO) 'requires:' >> META_new.yml
+	$(NOECHO) $(ECHO) '  Authen::SASL: '\''0'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) '  Email::Date::Format: '\''0'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) '  File::Spec: '\''0'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) '  LWP::MediaTypes: '\''0'\''' >> META_new.yml
@@ -513,7 +514,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '  Net::SMTP: '\''3.1'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) '  Net::SMTP_auth: '\''0'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) '  Test::More: '\''0'\''' >> META_new.yml
-	$(NOECHO) $(ECHO) 'version: '\''1.23'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) 'version: '\''1.30'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) 'x_serialization_backend: '\''CPAN::Meta::YAML version 0.018'\''' >> META_new.yml
 	-$(NOECHO) $(MV) META_new.yml $(DISTVNAME)/META.yml
 	$(NOECHO) $(ECHO) Generating META.json
@@ -551,6 +552,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '      },' >> META_new.json
 	$(NOECHO) $(ECHO) '      "runtime" : {' >> META_new.json
 	$(NOECHO) $(ECHO) '         "requires" : {' >> META_new.json
+	$(NOECHO) $(ECHO) '            "Authen::SASL" : "0",' >> META_new.json
 	$(NOECHO) $(ECHO) '            "Email::Date::Format" : "0",' >> META_new.json
 	$(NOECHO) $(ECHO) '            "File::Spec" : "0",' >> META_new.json
 	$(NOECHO) $(ECHO) '            "LWP::MediaTypes" : "0",' >> META_new.json
@@ -562,7 +564,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '      }' >> META_new.json
 	$(NOECHO) $(ECHO) '   },' >> META_new.json
 	$(NOECHO) $(ECHO) '   "release_status" : "stable",' >> META_new.json
-	$(NOECHO) $(ECHO) '   "version" : "1.23",' >> META_new.json
+	$(NOECHO) $(ECHO) '   "version" : "1.30",' >> META_new.json
 	$(NOECHO) $(ECHO) '   "x_serialization_backend" : "JSON::PP version 2.27300"' >> META_new.json
 	$(NOECHO) $(ECHO) '}' >> META_new.json
 	-$(NOECHO) $(MV) META_new.json $(DISTVNAME)/META.json
@@ -844,6 +846,7 @@ ppd :
 	$(NOECHO) $(ECHO) '    <ABSTRACT>Sends emails with attachments supporting Auth over TLS or SSL (for example: Google'\''s SMTP).</ABSTRACT>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR>Juan JosÃ© '\''Peco'\'' San MartÃ­n &lt;peco@cpan.org&gt;</AUTHOR>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Authen::SASL" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Email::Date::Format" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="File::Spec" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="LWP::MediaTypes" />' >> $(DISTNAME).ppd
