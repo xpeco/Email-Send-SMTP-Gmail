@@ -65,14 +65,17 @@ sub _initsmtp{
   # The module sets the SMTP google but could use another!
   # Set port if default
   if($port eq 'default'){
+	  print "layer: $layer\n";
       if($layer eq 'ssl'){
           $port=465;
+	  print "dentro\n";
       }
       else{
           $port=25;
       }
   }
- print "Connecting to $smtp using $layer with $auth on port $port and timeout of $timeout\n" if $debug;
+
+  print "Connecting to $smtp using $layer with $auth on port $port and timeout of $timeout\n" if $debug;
   # Set security layer from $layer
   if($layer eq 'none')
   {
