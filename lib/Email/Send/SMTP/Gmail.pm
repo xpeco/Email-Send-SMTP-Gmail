@@ -65,10 +65,8 @@ sub _initsmtp{
   # The module sets the SMTP google but could use another!
   # Set port if default
   if($port eq 'default'){
-	  print "layer: $layer\n";
       if($layer eq 'ssl'){
           $port=465;
-	  print "dentro\n";
       }
       else{
           $port=25;
