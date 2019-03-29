@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='1.30';
+$VERSION='1.31';
 require Net::SMTP;
 use Authen::SASL;
 use MIME::Base64;
@@ -476,7 +476,7 @@ Email::Send::SMTP::Gmail - Sends emails with attachments supporting Auth over TL
                                                     -login=>'whateveraddress@gmail.com',
                                                     -pass=>'whatever_pass');
 
-   print "session error: $error" unless ($email!=-1);
+   print "session error: $error" unless ($mail!=-1);
 
    $mail->send(-to=>'target@xxx.com', -subject=>'Hello!', -body=>'Just testing it',
                -attachments=>'full_path_to_file');
