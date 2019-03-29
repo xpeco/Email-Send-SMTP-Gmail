@@ -655,7 +655,7 @@ L<http://search.cpan.org/dist/Email-Send-SMTP-Gmail/>
 
 =item * Repository
 
-L<http://github.com/NoAuth/Bugs.html?Dist=Email-Send-SMTP-Gmail>
+L<https://github.com/xpeco/Email-Send-SMTP-Gmail>
 
 =back
 
