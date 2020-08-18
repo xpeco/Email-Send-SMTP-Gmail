@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='1.31';
+$VERSION='1.32';
 require Net::SMTP;
 use Authen::SASL;
 use MIME::Base64;
@@ -337,10 +337,10 @@ sub send
            $self->{sender}->datasend("Content-Transfer-Encoding: base64\n");
            if ((defined $properties{'-disposition'}) and ('inline' eq lc($properties{'-disposition'}))) {
               $self->{sender}->datasend("Content-ID: <$fileName>\n");
-              $self->{sender}->datasend("Content-Disposition: inline; =filename=\"$fileName\"\n\n");
+              $self->{sender}->datasend("Content-Disposition: inline; filename=\"$fileName\"\n\n");
            }
            else {
-             $self->{sender}->datasend("Content-Disposition: attachment; =filename=\"$fileName\"\n\n");
+             $self->{sender}->datasend("Content-Disposition: attachment; filename=\"$fileName\"\n\n");
            }
 
            # Google requires us to divide the attachment
@@ -403,12 +403,11 @@ sub send
            $self->{sender}->datasend("Content-Transfer-Encoding: base64\n");
            if ((defined $properties{'-disposition'}) and ('inline' eq lc($properties{'-disposition'}))) {
               $self->{sender}->datasend("Content-ID: <$fileName>\n");
-              $self->{sender}->datasend("Content-Disposition: inline; =filename=\"$fileName\"\n\n");
+              $self->{sender}->datasend("Content-Disposition: inline; filename=\"$fileName\"\n\n");
            }
            else {
-             $self->{sender}->datasend("Content-Disposition: attachment; =filename=\"$fileName\"\n\n");
+             $self->{sender}->datasend("Content-Disposition: attachment; filename=\"$fileName\"\n\n");
            }
-           # $self->{sender}->datasend("Content-Disposition: attachment; =filename=\"$fileName\"\n\n");
 
            # Google requires us to divide the attachment
            # First read -> Encode -> Send in chunks of 76
