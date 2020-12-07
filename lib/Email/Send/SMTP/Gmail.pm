@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION='1.34';
+$VERSION='1.35';
 require Net::SMTP;
 use Authen::SASL;
 use MIME::Base64;
@@ -642,9 +642,9 @@ You can also look for information at:
 
 =over 4
 
-=item * RT: CPAN's request tracker
+=item * BT: Github's request tracker
 
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Email-Send-SMTP-Gmail>
+L<https://github.com/xpeco/Email-Send-SMTP-Gmail/issues>
 
 =item * AnnoCPAN: Annotated CPAN documentation
 
